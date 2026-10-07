@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Send Heidi a Link</title>
+<meta name="description" content="Thinking about buying something to wear but not sure it'll fit? Send me the link.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=Instrument+Serif:ital@1&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one left-aligned column on a quiet ground. A tailor's tape runs under the ask,
+   and the promises are set like a sewn-in care label. Two views in one file (#about via :target). */
+:root {
+  --bg: #f3f4f1;
+  --fg: #1c211f;
+  --muted: #646d69;
+  --line: #d3d8d3;
+  --accent: #2b4775;      /* denim */
+  --accent-fg: #ffffff;
+  --field: #ffffff;
+  --tape: #e3cf8f;        /* tape-measure yellow */
+  --tape-ink: #3a3420;
+  --label: #fbfbf8;       /* care-label cotton */
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-accent: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-body: "Atkinson Hyperlegible", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --fg: #e8ebe7; --muted: #9ba49f; --line: #2b3331;
+    --accent: #a3bbe8; --accent-fg: #0f141c; --field: #1a1f1e;
+    --tape: #b59d55; --tape-ink: #1d1a10; --label: #1a1f1e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --fg: #e8ebe7; --muted: #9ba49f; --line: #2b3331;
+  --accent: #a3bbe8; --accent-fg: #0f141c; --field: #1a1f1e;
+  --tape: #b59d55; --tape-ink: #1d1a10; --label: #1a1f1e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1.0625rem/1.6 var(--font-body);
+  padding-inline: 20px;
+  padding-block: 0 56px;
+}
+.wrap { max-width: 36rem; margin-inline: auto; }
+p { margin: 0; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px;
+}
+
+/* Top line */
+nav {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding-block: 24px 0;
+}
+.mark { display: flex; align-items: baseline; gap: 10px; text-decoration: none; }
+.mark b { font: 600 1.05rem/1 var(--font-display); letter-spacing: 0.01em; }
+.eyebrow {
+  font: 500 0.7rem/1 var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+}
+nav > a.eyebrow { text-decoration: none; }
+nav > a.eyebrow:hover { color: var(--fg); }
+
+/* Views */
+.view { display: flex; flex-direction: column; padding-block: clamp(56px, 16vh, 150px) 0; }
+#about { display: none; }
+#about:target { display: flex; }
+#about:target ~ #home { display: none; }
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 7.2vw, 3.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  margin: 0;
+}
+h1 em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.12em;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+.lede { color: var(--muted); font-size: 1.15rem; margin-block-start: 18px; max-width: 30ch; }
+
+/* The ask: one seam joining field and button */
+form { margin-block-start: 36px; display: flex; flex-direction: column; gap: 12px; }
+.seam {
+  display: flex;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 6px;
+  gap: 6px;
+  transition: border-color .15s ease;
+}
+.seam:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.seam input {
+  flex: 1; min-width: 0;
+  font: inherit; color: var(--fg);
+  background: transparent; border: 0;
+  padding: 12px;
+}
+.seam input:focus { outline: none; }
+.seam input::placeholder { color: var(--muted); }
+button.send {
+  flex: none;
+  font: 700 1rem/1 var(--font-body);
+  color: var(--accent-fg); background: var(--accent);
+  border: 0; border-radius: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+}
+button.send:hover { filter: brightness(1.08); }
+@media (max-width: 440px) {
+  .seam { flex-direction: column; }
+  button.send { width: 100%; }
+}
+.hint { color: var(--muted); font-size: 0.92rem; padding-inline: 4px; }
+.hint[data-tone="warn"] { color: var(--fg); }
+
+/* Tailor's tape: 12 inches, eighths ticked */
+.tape {
+  display: flex;
+  margin-block: 56px 22px;
+  height: 26px;
+  background: var(--tape);
+  border-radius: 2px;
+  overflow: hidden;
+  color: var(--tape-ink);
+}
+.tape span {
+  flex: 1;
+  position: relative;
+  border-left: 1px solid var(--tape-ink);
+  background:
+    linear-gradient(var(--tape-ink), var(--tape-ink)) 50% 0 / 1px 9px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 calc(12.5% - 1px), var(--tape-ink) calc(12.5% - 1px) 12.5%) 0 0 / 100% 5px no-repeat;
+  font: 500 0.62rem/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.tape span::after {
+  content: attr(data-n);
+  position: absolute; right: 3px; bottom: 4px;
+  opacity: .85;
+}
+.tape span:first-child { border-left: 0; }
+
+.fine { display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-size: 0.95rem; }
+.fine a { color: var(--fg); }
+.number { font-family: var(--font-mono); font-size: 0.92em; font-variant-numeric: tabular-nums; color: var(--fg); user-select: all; white-space: nowrap; }
+button.linkish {
+  font: inherit; color: var(--fg); background: none; border: 0; padding: 0; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
+
+/* About */
+.prose { display: flex; flex-direction: column; gap: 16px; margin-block-start: 22px; }
+.prose p { max-width: 60ch; }
+.care {
+  margin-block: 14px;
+  background: var(--label);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 7px;
+  max-width: 26rem;
+}
+.care-inner {
+  border: 1px dashed var(--muted);
+  border-radius: 2px;
+  padding: 18px 20px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.care ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.care li { font-size: 0.98rem; line-height: 1.45; }
+.back { margin-block-start: 28px; }
+.back a { color: var(--muted); }
+.back a:hover { color: var(--fg); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="mark" href="#home"><b>Heidi</b><span class="eyebrow">Fit research</span></a>
+    <a class="eyebrow" href="#about">About</a>
+  </nav>
+
+  <!-- ABOUT (shown when the address ends in #about) -->
+  <main id="about" class="view" aria-labelledby="about-title">
+    <h1 id="about-title">Hi, I'm <em>Heidi.</em></h1>
+    <div class="prose">
+      <p>I'm trying to understand how people shop for clothes online, especially how they guess whether something will fit.</p>
+      <div class="care">
+        <div class="care-inner">
+          <span class="eyebrow">Care label</span>
+          <ul>
+            <li>This is independent research. No brand or store pays me.</li>
+            <li>I won't try to talk you into buying something, or out of it.</li>
+            <li>There's nothing to sign up for or buy, now or later.</li>
+            <li>What you send stays with me.</li>
+          </ul>
+        </div>
+      </div>
+      <p>Sometimes I'll text back a question, like what's one pair of pants that fits you really well. Answer only if you feel like it.</p>
+      <p>Thanks for letting me look over your shoulder for a minute.</p>
+    </div>
+    <p class="back"><a href="#home">Back to send a link</a></p>
+  </main>
+
+  <!-- HOME -->
+  <main id="home" class="view" aria-labelledby="home-title">
+    <h1 id="home-title">Thinking about buying something to wear, but not sure it'll <em>fit?</em></h1>
+    <p class="lede">Send me the link. I'm curious what you're looking at.</p>
+
+    <form id="send" novalidate>
+      <div class="seam">
+        <input id="link" name="link" type="url" inputmode="url" autocomplete="off"
+               placeholder="Paste a link" aria-label="Link to the item" required>
+        <button type="submit" class="send">Text it to me</button>
+      </div>
+      <p class="hint" id="hint" aria-live="polite">This opens your messages app with the link filled in. Nothing is saved here.</p>
+    </form>
+
+    <div class="tape" aria-hidden="true">
+      <span data-n="1"></span><span data-n="2"></span><span data-n="3"></span><span data-n="4"></span>
+      <span data-n="5"></span><span data-n="6"></span><span data-n="7"></span><span data-n="8"></span>
+      <span data-n="9"></span><span data-n="10"></span><span data-n="11"></span><span data-n="12"></span>
+    </div>
+
+    <div class="fine">
+      <p>No sign-up, and I'm not selling anything. <a href="#about">Who I am and why I'm asking</a></p>
+      <p>Rather text me yourself? My number is <span class="number" id="number">(510) 206-5318</span>. <button type="button" class="linkish" id="copy">Copy</button></p>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Heidi's number, used for the sms: link.
+  var PHONE = "+15102065318";
+
+  var form = document.getElementById("send");
+  var input = document.getElementById("link");
+  var hint = document.getElementById("hint");
+  var defaultHint = hint.textContent;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var link = input.value.trim();
+    if (!link) {
+      hint.dataset.tone = "warn";
+      hint.textContent = "Paste a link first, then tap Text it to me.";
+      input.focus();
+      return;
+    }
+    hint.dataset.tone = "";
+    hint.textContent = "Your messages app should open with the link ready. If it didn't, text it to the number below.";
+    // "?&body=" is read correctly by both iPhone and Android messages apps.
+    window.location.href = "sms:" + PHONE + "?&body=" + encodeURIComponent(link);
+  });
+
+  input.addEventListener("input", function () {
+    if (hint.dataset.tone === "warn") { hint.dataset.tone = ""; hint.textContent = defaultHint; }
+  });
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var btn = this;
+    var el = document.getElementById("number");
+    function done() { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1600); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(el);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    try { navigator.clipboard.writeText(el.textContent.trim()).then(done, fallback); }
+    catch (err) { fallback(); }
+  });
+</script>
+</body>
+</html>
