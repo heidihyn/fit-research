@@ -70,8 +70,10 @@ nav {
   font: 500 0.7rem/1 var(--font-mono);
   text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
 }
-nav > a.eyebrow { text-decoration: none; }
-nav > a.eyebrow:hover { color: var(--fg); }
+.navr { display: flex; align-items: baseline; gap: 20px; }
+.navr a.eyebrow { text-decoration: none; }
+.navr a.eyebrow:hover, button.theme:hover { color: var(--fg); }
+button.theme { background: none; border: 0; padding: 0; cursor: pointer; }
 
 /* Views */
 .view { display: flex; flex-direction: column; padding-block: clamp(56px, 16vh, 150px) 0; }
@@ -199,7 +201,10 @@ button.linkish {
 <div class="wrap">
   <nav>
     <a class="mark" href="#home"><b>Heidi</b><span class="eyebrow">Fit research</span></a>
-    <a class="eyebrow" href="#about">About</a>
+    <div class="navr">
+      <a class="eyebrow" href="#about">About</a>
+      <button type="button" class="eyebrow theme" id="theme" aria-label="Switch to night theme">Night</button>
+    </div>
   </nav>
 
   <!-- ABOUT (shown when the address ends in #about) -->
@@ -252,6 +257,27 @@ button.linkish {
 </div>
 
 <script>
+  // Day / night switch. Follows the device until someone picks; remembers the pick on this browser.
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById("theme");
+    var dark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    try { var saved = localStorage.getItem("theme"); if (saved) root.dataset.theme = saved; } catch (e) {}
+    function isDark() { return root.dataset.theme ? root.dataset.theme === "dark" : !!(dark && dark.matches); }
+    function label() {
+      var d = isDark();
+      btn.textContent = d ? "Day" : "Night";
+      btn.setAttribute("aria-label", d ? "Switch to day theme" : "Switch to night theme");
+    }
+    btn.addEventListener("click", function () {
+      root.dataset.theme = isDark() ? "light" : "dark";
+      try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+      label();
+    });
+    if (dark && dark.addEventListener) dark.addEventListener("change", label);
+    label();
+  })();
+
   // Heidi's number, used for the sms: link.
   var PHONE = "+15102065318";
 
