@@ -54,6 +54,8 @@ body {
 }
 .wrap { max-width: 36rem; margin-inline: auto; }
 p { margin: 0; }
+p, li { text-wrap: pretty; }
+.ph { display: inline-block; }  /* keeps a phrase on one line when it fits */
 a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 a:focus-visible, button:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px;
@@ -84,7 +86,7 @@ button.theme { background: none; border: 0; padding: 0; cursor: pointer; }
 h1 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(2.1rem, 7.2vw, 3.1rem);
+  font-size: clamp(1.85rem, 8.4vw, 3.1rem);
   line-height: 1.04;
   letter-spacing: -0.025em;
   text-wrap: balance;
@@ -98,7 +100,7 @@ h1 em {
   letter-spacing: -0.01em;
   color: var(--accent);
 }
-.lede { color: var(--muted); font-size: 1.15rem; margin-block-start: 18px; max-width: 30ch; }
+.lede { color: var(--muted); font-size: 1.15rem; margin-block-start: 18px; }
 
 /* The ask: one seam joining field and button */
 form { margin-block-start: 36px; display: flex; flex-direction: column; gap: 12px; }
@@ -216,9 +218,9 @@ button.linkish {
         <div class="care-inner">
           <span class="eyebrow">Care label</span>
           <ul>
-            <li>This is independent research. No brand or store pays me.</li>
+            <li><span class="ph">This is independent research.</span> <span class="ph">No brand or store pays me.</span></li>
             <li>I won't try to talk you into buying something, or out of it.</li>
-            <li>There's nothing to sign up for or buy, now or later.</li>
+            <li><span class="ph">There's nothing to sign up for or buy,</span> <span class="ph">now or later.</span></li>
             <li>What you send stays with me.</li>
           </ul>
         </div>
@@ -231,8 +233,8 @@ button.linkish {
 
   <!-- HOME -->
   <main id="home" class="view" aria-labelledby="home-title">
-    <h1 id="home-title">Thinking about buying something to wear, but not sure it'll <em>fit?</em></h1>
-    <p class="lede">Send me the link. I'm curious what you're looking at.</p>
+    <h1 id="home-title"><span class="ph">Thinking about buying</span> <span class="ph">something to wear,</span> <span class="ph">but not sure it'll <em>fit?</em></span></h1>
+    <p class="lede"><span class="ph">Send me the link.</span> <span class="ph">I'm curious what you're looking at.</span></p>
 
     <form id="send" novalidate>
       <div class="seam">
@@ -240,7 +242,7 @@ button.linkish {
                placeholder="Paste a link" aria-label="Link to the item" required>
         <button type="submit" class="send">Text it to me</button>
       </div>
-      <p class="hint" id="hint" aria-live="polite">This opens your messages app with the link filled in. Nothing is saved here.</p>
+      <p class="hint" id="hint" aria-live="polite"><span class="ph">This opens your messages app</span> <span class="ph">with the link filled in.</span> <span class="ph">Nothing is saved here.</span></p>
     </form>
 
     <div class="tape" aria-hidden="true">
@@ -250,8 +252,8 @@ button.linkish {
     </div>
 
     <div class="fine">
-      <p>No sign-up, and I'm not selling anything. <a href="#about">Who I am and why I'm asking</a></p>
-      <p>Rather text me yourself? My number is <span class="number" id="number">(510) 206-5318</span>. <button type="button" class="linkish" id="copy">Copy</button></p>
+      <p><span class="ph">No sign-up, and I'm not selling anything.</span> <a class="ph" href="#about">Who I am and why I'm asking</a></p>
+      <p><span class="ph">Rather text me yourself?</span> <span class="ph">My number is <span class="number" id="number">(510) 206-5318</span>. <button type="button" class="linkish" id="copy">Copy</button></span></p>
     </div>
   </main>
 </div>
@@ -284,7 +286,7 @@ button.linkish {
   var form = document.getElementById("send");
   var input = document.getElementById("link");
   var hint = document.getElementById("hint");
-  var defaultHint = hint.textContent;
+  var defaultHint = hint.innerHTML;
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -302,7 +304,7 @@ button.linkish {
   });
 
   input.addEventListener("input", function () {
-    if (hint.dataset.tone === "warn") { hint.dataset.tone = ""; hint.textContent = defaultHint; }
+    if (hint.dataset.tone === "warn") { hint.dataset.tone = ""; hint.innerHTML = defaultHint; }
   });
 
   document.getElementById("copy").addEventListener("click", function () {
