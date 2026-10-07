@@ -234,12 +234,12 @@ button.linkish {
   <!-- HOME -->
   <main id="home" class="view" aria-labelledby="home-title">
     <h1 id="home-title"><span class="ph">Thinking about buying</span> <span class="ph">something to wear,</span> <span class="ph">but not sure it'll <em>fit?</em></span></h1>
-    <p class="lede"><span class="ph">Send me the link.</span> <span class="ph">I'm curious what you're looking at.</span></p>
+    <p class="lede"><span class="ph">Send me the link</span> <span class="ph">to the clothes you're eyeing.</span> <span class="ph">I'm curious what you're looking at.</span></p>
 
     <form id="send" novalidate>
       <div class="seam">
         <input id="link" name="link" type="url" inputmode="url" autocomplete="off"
-               placeholder="Paste a link" aria-label="Link to the item" required>
+               placeholder="Paste the link to the item" aria-label="Link to the item" required>
         <button type="submit" class="send">Text it to me</button>
       </div>
       <p class="hint" id="hint" aria-live="polite"><span class="ph">This opens your messages app</span> <span class="ph">with the link filled in.</span> <span class="ph">Nothing is saved here.</span></p>
@@ -293,7 +293,7 @@ button.linkish {
     var link = input.value.trim();
     if (!link) {
       hint.dataset.tone = "warn";
-      hint.textContent = "Paste a link first, then tap Text it to me.";
+      hint.textContent = "Paste the link to the item first, then tap Text it to me.";
       input.focus();
       return;
     }
