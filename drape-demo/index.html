@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fit Notes</title>
+<title>Drape</title>
 <meta name="description" content="Paste a link to clothes you're eyeing and a link to a piece that fits you well. Get honest, size-by-size fit notes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -433,7 +433,7 @@ textarea.notes:focus { outline: none; border-color: var(--accent); box-shadow: 0
 
 <div class="wrap">
   <nav>
-    <button class="mark" type="button" data-act="home" aria-label="Fit Notes home"><b>Fit Notes</b><span class="seal">Demo</span></button>
+    <button class="mark" type="button" data-act="home" aria-label="Drape home"><b>Drape</b><span class="seal">Demo</span></button>
     <div class="navr">
       <span id="who" class="eyebrow"></span>
       <button type="button" class="eyebrow" id="theme" aria-label="Switch to night theme">Night</button>
@@ -450,22 +450,22 @@ textarea.notes:focus { outline: none; border-color: var(--accent); box-shadow: 0
 /* ---------- Theme ---------- */
 var root = document.documentElement, themeBtn = document.getElementById("theme");
 var darkMq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-try { var savedTheme = localStorage.getItem("fitnotes.theme"); if (savedTheme) root.dataset.theme = savedTheme; } catch (e) {}
+try { var savedTheme = localStorage.getItem("drape.theme"); if (savedTheme) root.dataset.theme = savedTheme; } catch (e) {}
 function isDark() { return root.dataset.theme ? root.dataset.theme === "dark" : !!(darkMq && darkMq.matches); }
 function themeLabel() { var d = isDark(); themeBtn.textContent = d ? "Day" : "Night"; themeBtn.setAttribute("aria-label", d ? "Switch to day theme" : "Switch to night theme"); }
 themeBtn.addEventListener("click", function () {
   root.dataset.theme = isDark() ? "light" : "dark";
-  try { localStorage.setItem("fitnotes.theme", root.dataset.theme); } catch (e) {}
+  try { localStorage.setItem("drape.theme", root.dataset.theme); } catch (e) {}
   themeLabel();
 });
 if (darkMq && darkMq.addEventListener) darkMq.addEventListener("change", themeLabel);
 themeLabel();
 
 /* ---------- Saved data (this browser only, in the demo) ---------- */
-var KEY = "fitnotes.demo.v1";
-function fresh() { return { schema: "fitnotes.v1", user: null, favorites: [], checks: [] }; }
+var KEY = "drape.demo.v1";
+function fresh() { return { schema: "drape.v1", user: null, favorites: [], checks: [] }; }
 function load() {
-  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.schema === "fitnotes.v1") return s; } catch (e) {}
+  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.schema === "drape.v1") return s; } catch (e) {}
   return fresh();
 }
 var S = load();
