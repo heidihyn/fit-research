@@ -1,0 +1,1704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fit Notes</title>
+<meta name="description" content="Paste a link to clothes you're eyeing and a link to a piece that fits you well. Get honest, size-by-size fit notes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one board you can take in at a glance. Each part is a card with a sewn-in label on its edge.
+   Garment pieces show up as swinging hang tags; the tailor's tape measures, counts and fills progress. */
+:root {
+  --bg: #f3f4f1;
+  --fg: #1c211f;
+  --muted: #59625e;
+  --line: #d3d8d3;
+  --accent: #2b4775;      /* denim */
+  --accent-fg: #ffffff;
+  --field: #ffffff;
+  --tape: #e3cf8f;        /* tape-measure yellow */
+  --tape-soft: #f1e5bd;
+  --hl: #f4c430;          /* highlighter */
+  --tape-ink: #3a3420;
+  --label: #fbfbf8;       /* care-label cotton */
+  --good: #2f6b4f;
+  --snug: #94600f;
+  --bad: #a3392a;
+  --roomy: #2b6577;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-accent: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --fg: #e8ebe7; --muted: #a3aca7; --line: #2b3331;
+    --accent: #a3bbe8; --accent-fg: #0f141c; --field: #1a1f1e;
+    --tape: #b59d55; --tape-soft: #3a3423; --tape-ink: #1d1a10; --hl: #a8801a; --label: #1a1f1e;
+    --good: #7cc4a0; --snug: #e0b25e; --bad: #f08a78; --roomy: #7ec0d4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --fg: #e8ebe7; --muted: #a3aca7; --line: #2b3331;
+  --accent: #a3bbe8; --accent-fg: #0f141c; --field: #1a1f1e;
+  --tape: #b59d55; --tape-soft: #3a3423; --tape-ink: #1d1a10; --hl: #a8801a; --label: #1a1f1e;
+  --good: #7cc4a0; --snug: #e0b25e; --bad: #f08a78; --roomy: #7ec0d4;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1.0625rem/1.55 var(--font-body);
+  padding-inline: 16px;
+  padding-block: 0 72px;
+}
+.wrap { max-width: 34rem; margin-inline: auto; }
+p { margin: 0; }
+p, li { text-wrap: pretty; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: 400; text-wrap: balance; }
+h1 { font-size: clamp(1.75rem, 7.4vw, 2.5rem); line-height: 1.06; letter-spacing: -0.025em; }
+h1 em, h2 em, h3 em { font-style: normal; color: var(--accent); }
+h2 { font-size: 1.45rem; line-height: 1.12; letter-spacing: -0.015em; }
+h3 { font-size: 1.08rem; font-weight: 600; letter-spacing: -0.005em; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.ph { display: inline-block; }
+.muted { color: var(--muted); }
+.small { font-size: 0.92rem; }
+
+/* ---- Small type with some personality ---- */
+.eyebrow { font: 600 0.7rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+/* Friendly asides */
+.aside { font: 500 1rem/1.45 var(--font-body); color: var(--fg); }
+.aside b { font-style: normal; font-family: var(--font-body); font-size: 0.82em; font-weight: 700; }
+/* Highlighter in tape yellow for the words that matter */
+mark, .hl { background: linear-gradient(transparent 40%, var(--hl) 40%, var(--hl) 94%, transparent 94%); color: inherit; font-weight: 700; padding: 0 3px; border-radius: 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.num { font: 600 0.95em/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* Sewn-in label on the edge of each card */
+.tag {
+  position: absolute; top: -13px; left: 14px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 10px 5px 6px;
+  background: var(--label); border: 1px solid var(--line); border-radius: 3px;
+  font: 600 0.7rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.13em; color: var(--fg);
+  box-shadow: inset 0 0 0 3px var(--label), inset 0 0 0 4px color-mix(in srgb, var(--muted) 45%, transparent);
+}
+.tag b {
+  display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--tape); color: var(--tape-ink); font: 700 0.68rem/1 var(--font-mono); letter-spacing: 0;
+}
+.tag.done b { background: var(--good); color: var(--bg); }
+
+/* Top line */
+nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 18px 0; }
+.mark { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; cursor: pointer; }
+.mark b { font: 700 1.12rem/1 var(--font-display); letter-spacing: -0.01em; }
+.mark .seal { font: 600 0.62rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; padding: 4px 6px; border: 1px dashed var(--muted); border-radius: 3px; color: var(--muted); }
+.navr { display: flex; align-items: center; gap: 14px; }
+.navr button { background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.navr button:hover { color: var(--fg); }
+.backbar { display: flex; align-items: center; min-height: 44px; padding-top: 10px; }
+.backbtn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 8px 10px 8px 0; cursor: pointer; color: var(--muted); font: 700 0.98rem/1 var(--font-body); min-height: 44px; }
+.backbtn:hover { color: var(--fg); }
+.backbtn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.view { display: flex; flex-direction: column; gap: 30px; padding-block: 30px 0; }
+.backbar:not([hidden]) + main .view { padding-top: 10px; }
+.view.enter { animation: rise .3s ease both; }
+@keyframes rise { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lede { color: var(--muted); font-size: 1.08rem; }
+
+/* Cards on the board */
+.bcard { position: relative; background: var(--field); border: 1px solid var(--line); border-radius: 16px; padding: 26px 16px 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; transition: opacity .25s ease; }
+.bcard.dim { opacity: .55; }
+.card { background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* Buttons */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--field); color: var(--fg); font: 700 1rem/1.2 var(--font-body);
+  cursor: pointer; text-align: center; transition: transform .08s ease, filter .15s ease, opacity .2s;
+}
+.btn:active { transform: scale(.98); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .4; cursor: default; }
+.btn.ghost { background: none; border-color: transparent; color: var(--muted); font-weight: 400; min-height: 40px; padding: 8px; }
+.btn.ghost:hover { color: var(--fg); }
+.btn .pmark { width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 700 0.85rem/1 var(--font-body); border: 1px solid var(--line); color: var(--muted); }
+.linkish { background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); font-size: 0.9rem; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; align-self: flex-start; }
+.linkish:hover { color: var(--fg); }
+
+/* Link field */
+.seam { display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 5px; gap: 6px; }
+.seam:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.seam input { flex: 1; min-width: 0; font: inherit; color: var(--fg); background: transparent; border: 0; padding: 11px; }
+.seam input:focus { outline: none; }
+.seam input::placeholder { color: var(--muted); }
+.seam .btn { min-height: 44px; flex: none; padding: 10px 16px; }
+.hint { color: var(--muted); font-size: 0.9rem; }
+.hint.warn { color: var(--bad); }
+
+/* Chips. Picked chips get a stitched inner seam. */
+.chip {
+  position: relative; min-height: 44px; padding: 10px 16px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--field);
+  font: 700 0.96rem/1 var(--font-body); cursor: pointer;
+  transition: transform .08s ease, background-color .15s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.chip:active { transform: scale(.94); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip[aria-pressed="true"]::after { content: ""; position: absolute; inset: 3px; border-radius: inherit; border: 1px dashed color-mix(in srgb, var(--accent-fg) 55%, transparent); pointer-events: none; }
+.chip.sm { min-height: 36px; padding: 8px 12px; font-size: 0.88rem; }
+.chip.lite { font-weight: 400; }
+.chip svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.chip.just { animation: pick .38s cubic-bezier(.3,1.7,.5,1); }
+@keyframes pick { 0% { transform: scale(.88); } 100% { transform: none; } }
+.chip.size { min-width: 48px; padding: 10px 12px; justify-content: center; font: 700 1.02rem/1 var(--font-mono); }
+
+/* Hang tag for a garment we recognized: pointed tag shape, stitched edge, style labels */
+.hangtag { position: relative; filter: drop-shadow(0 0 0.6px var(--muted)) drop-shadow(0 1px 1px color-mix(in srgb, var(--fg) 8%, transparent)); transform-origin: 0 50%; }
+.hangtag-in {
+  position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+  padding: 13px 14px 13px 30px; background: var(--label);
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 50%);
+}
+.hangtag-in::before { content: ""; position: absolute; inset: 5px 5px 5px 20px; border: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 2px; pointer-events: none; }
+.hangtag .t { font: 700 1rem/1.3 var(--font-body); overflow-wrap: anywhere; }
+.hangtag .b { font: 600 0.68rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+.hangtag .sz { position: absolute; right: 12px; top: 11px; font: 700 0.85rem/1 var(--font-mono); padding: 4px 7px; border-radius: 4px; background: var(--tape); color: var(--tape-ink); }
+.hangtag.has-sz .hangtag-in { padding-right: 58px; }
+.lbls { display: flex; flex-wrap: wrap; gap: 5px; }
+.lbl { font: 600 0.64rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .1em; padding: 4px 6px; border-radius: 3px; border: 1px solid var(--line); background: var(--field); color: var(--fg); }
+.lbl.cat { background: var(--tape); border-color: var(--tape); color: var(--tape-ink); }
+.fx-swing { animation: swing 1.2s cubic-bezier(.25,.9,.35,1) both; }
+@keyframes swing { 0% { transform: rotate(-9deg) translateY(-4px); opacity: 0; } 18% { opacity: 1; } 35% { transform: rotate(5deg); } 55% { transform: rotate(-2.5deg); } 75% { transform: rotate(1deg); } 100% { transform: none; } }
+
+/* Tailor's tape */
+.tape { position: relative; display: flex; height: 22px; background: var(--tape); border-radius: 2px; overflow: hidden; color: var(--tape-ink); }
+.tape span {
+  flex: 1; position: relative; border-left: 1px solid var(--tape-ink);
+  background:
+    linear-gradient(var(--tape-ink), var(--tape-ink)) 50% 0 / 1px 8px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--tape-ink) calc(25% - 1px) 25%) 0 0 / 100% 4px no-repeat;
+  font: 500 0.58rem/1 var(--font-mono);
+}
+.tape span::after { content: attr(data-n); position: absolute; right: 3px; bottom: 3px; opacity: .85; }
+.tape span:first-child { border-left: 0; }
+.tape .fill { position: absolute; inset: 0 auto 0 0; width: 0%; background: var(--accent); opacity: .72; transition: width .45s cubic-bezier(.3,.7,.3,1); }
+.tape .fill::after { content: ""; position: absolute; right: -1px; top: -2px; bottom: -2px; width: 3px; background: var(--bad); }
+.tape.measuring .fill { animation: measure 2.1s cubic-bezier(.4,.1,.2,1) forwards; }
+@keyframes measure { to { width: 100%; } }
+.measure-box { display: flex; flex-direction: column; gap: 14px; padding: 18px 16px; border: 1px dashed var(--muted); border-radius: 14px; }
+.counter { display: flex; align-items: baseline; gap: 8px; }
+.counter .big { font: 600 2.2rem/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+.ticks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; }
+.ticks li { display: flex; gap: 10px; align-items: baseline; opacity: .35; transition: opacity .3s; }
+.ticks li.on { opacity: 1; }
+.ticks li::before { content: "○"; font-family: var(--font-mono); color: var(--muted); }
+.ticks li.on::before { content: "✓"; color: var(--good); font-weight: 700; }
+
+/* Results */
+.results { display: flex; flex-direction: column; gap: 22px; scroll-margin-top: 16px; }
+.fx-results { animation: unroll .55s cubic-bezier(.2,.8,.2,1) both; transform-origin: top; }
+@keyframes unroll { from { opacity: 0; transform: translateY(14px) scaleY(.97); } to { opacity: 1; transform: none; } }
+.banner { border-radius: 12px; padding: 14px 16px; background: var(--tape-soft); border: 1px solid color-mix(in srgb, var(--tape) 70%, var(--line)); display: flex; flex-direction: column; gap: 6px; }
+.banner.bad { background: color-mix(in srgb, var(--bad) 9%, var(--bg)); border-color: color-mix(in srgb, var(--bad) 35%, var(--line)); }
+.banner.personal { background: color-mix(in srgb, var(--good) 9%, var(--bg)); border-color: color-mix(in srgb, var(--good) 30%, var(--line)); }
+.banner ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+.v { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font: 700 0.8rem/1.3 var(--font-body); white-space: nowrap; }
+.v::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.l0, .good { color: var(--good); } .lm1, .l2, .mixed { color: var(--snug); } .lm2, .bad { color: var(--bad); } .l1, .ok { color: var(--roomy); }
+.v.l0, .v.good { background: color-mix(in srgb, var(--good) 13%, transparent); }
+.v.lm1, .v.l2, .v.mixed { background: color-mix(in srgb, var(--snug) 14%, transparent); }
+.v.lm2, .v.bad { background: color-mix(in srgb, var(--bad) 13%, transparent); }
+.v.l1, .v.ok { background: color-mix(in srgb, var(--roomy) 13%, transparent); }
+
+.glance-wrap { overflow-x: auto; margin-inline: -4px; }
+table.glance { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.glance th, .glance td { padding: 9px 4px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.glance thead th { font: 600 1.05rem/1 var(--font-mono); color: var(--fg); }
+.glance tbody th { font-weight: 400; color: var(--muted); font-size: 0.84rem; line-height: 1.25; }
+.glance .v { font-size: 0.76rem; padding: 2px 7px; }
+.glance tr:last-child td, .glance tr:last-child th { border-bottom: 0; }
+.glance td.sel { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+/* Size toggle */
+.tabs { display: flex; gap: 8px; }
+.tab { flex: 1 1 0; min-width: 0; min-height: 62px; border: 1px solid var(--line); border-radius: 12px; background: var(--field); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; padding: 8px 6px; transition: transform .1s; }
+.tab:active { transform: scale(.97); }
+.tab b { font: 700 1.25rem/1 var(--font-mono); }
+.tab small { font-size: 0.7rem; color: var(--muted); text-align: center; line-height: 1.2; }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--field)); }
+
+/* Garment sketch with fit pins */
+.sizehead { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; }
+@media (max-width: 360px) { .sizehead { grid-template-columns: 110px 1fr; } }
+.sketch { width: 100%; height: auto; display: block; }
+.sketch .body { fill: var(--label); stroke: var(--muted); stroke-width: 1.6; stroke-linejoin: round; }
+.sketch .stitch { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+.sketch .pin { transform-box: fill-box; transform-origin: center; }
+.sketch .pin circle { fill: currentColor; stroke: var(--field); stroke-width: 2.5; }
+.sketch .pin text { fill: var(--field); font: 700 11px/1 var(--font-mono); text-anchor: middle; dominant-baseline: central; }
+.fx-pins .pin { animation: pinIn .5s cubic-bezier(.3,1.8,.5,1) both; }
+@keyframes pinIn { from { transform: translateY(-14px) scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.zones { display: flex; flex-direction: column; }
+.zone { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 14px 0; border-top: 1px dashed var(--line); }
+.zone:first-child { border-top: 0; padding-top: 2px; }
+.zone .zn { font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.zone .zn .pinno { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: currentColor; flex: none; }
+.zone .zn .pinno i { font: 700 0.66rem/1 var(--font-mono); font-style: normal; color: var(--field); }
+.zone .zt { grid-column: 1 / -1; }
+.zone .personal-note { grid-column: 1 / -1; font: 700 0.95rem/1.4 var(--font-body); color: var(--good); }
+.conf { display: flex; align-items: center; gap: 8px; justify-self: end; }
+.ctape { position: relative; width: 60px; height: 10px; border-radius: 2px; background: var(--tape-soft); overflow: hidden;
+  background-image: repeating-linear-gradient(90deg, transparent 0 5px, color-mix(in srgb, var(--tape-ink) 35%, transparent) 5px 6px); }
+.ctape i { position: absolute; inset: 0 auto 0 0; background: var(--tape); border-right: 2px solid var(--tape-ink); }
+.fx-results .ctape i, .fx-pins-z .ctape i { animation: grow .9s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes grow { from { width: 0; } }
+.conf span { font: 600 0.78rem/1 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.conf span small { font-weight: 400; color: var(--muted); font-size: 0.72rem; }
+.motion { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 0.95rem; padding-top: 12px; border-top: 1px dashed var(--line); }
+.motion dt { font: 600 0.68rem/1.9 var(--font-mono); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+.motion dd { margin: 0; }
+details summary { cursor: pointer; color: var(--muted); font-size: 0.92rem; padding-block: 4px; }
+details[open] summary { margin-bottom: 8px; }
+table.meas { width: 100%; border-collapse: collapse; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.meas th, .meas td { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: right; }
+.meas th:first-child, .meas td:first-child { text-align: left; }
+.meas thead th { font: 600 0.66rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.foot { color: var(--muted); font-size: 0.84rem; }
+
+/* Fit report board */
+.sv-prog { display: flex; flex-direction: column; gap: 8px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--field); padding-block: 8px; margin-top: -8px; }
+.sv-prog .row { justify-content: space-between; }
+.qrows { display: flex; flex-direction: column; }
+.qrow { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-top: 1px dashed var(--line); }
+.qrow:first-child { border-top: 0; }
+.qrow h4 { font: 600 1rem/1.3 var(--font-display); display: flex; gap: 8px; align-items: center; }
+.qrow h4 .ck { width: 18px; height: 18px; border-radius: 50%; border: 1.5px dashed var(--muted); flex: none; display: grid; place-items: center; }
+.qrow.answered h4 .ck { border: 0; background: var(--good); }
+.qrow.answered h4 .ck::after { content: ""; width: 8px; height: 4px; border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(-45deg) translate(1px, -1px); }
+.qrow.fx-new { animation: rise .35s ease both; }
+
+/* Care label that sews itself on */
+.carelabel { position: relative; padding: 20px 18px 18px; background: var(--label); border-radius: 4px; display: flex; flex-direction: column; gap: 10px; }
+.carelabel::before { content: ""; position: absolute; inset: 6px; border: 1.2px dashed var(--muted); border-radius: 3px; pointer-events: none; }
+.carelabel .th { position: absolute; pointer-events: none; border: 0 dashed var(--accent); }
+.carelabel .th.t1 { top: 6px; left: 6px; right: 6px; border-top-width: 1.6px; transform-origin: left; }
+.carelabel .th.t2 { top: 6px; right: 6px; bottom: 6px; border-right-width: 1.6px; transform-origin: top; }
+.carelabel .th.t3 { bottom: 6px; left: 6px; right: 6px; border-bottom-width: 1.6px; transform-origin: right; }
+.carelabel .th.t4 { top: 6px; left: 6px; bottom: 6px; border-left-width: 1.6px; transform-origin: bottom; }
+.fx-sew .th.t1, .fx-sew .th.t3 { animation: sewX .4s linear both; }
+.fx-sew .th.t2, .fx-sew .th.t4 { animation: sewY .4s linear both; }
+.fx-sew .th.t2 { animation-delay: .4s; } .fx-sew .th.t3 { animation-delay: .8s; } .fx-sew .th.t4 { animation-delay: 1.2s; }
+@keyframes sewX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes sewY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.carelabel { border: 1px solid var(--line); }
+.learn { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.learn li { display: grid; grid-template-columns: 5.5rem 1fr; gap: 10px; align-items: baseline; }
+.learn li b { font: 600 0.68rem/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+pre.json { margin: 0; max-height: 340px; overflow: auto; padding: 14px; border-radius: 10px; background: var(--label); border: 1px solid var(--line); font: 400 0.75rem/1.5 var(--font-mono); white-space: pre; color: var(--fg); }
+.histrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px dashed var(--line); }
+.histrow:first-child { border-top: 0; padding-top: 0; }
+.histrow .t { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.histrow .s { grid-column: 1 / -1; font-size: 0.88rem; color: var(--muted); }
+.care-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.care-list li { display: flex; gap: 10px; align-items: baseline; }
+.care-list li::before { content: "✂"; color: var(--accent); font-size: 0.9rem; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font: 600 0.85rem/1 var(--font-mono); letter-spacing: .02em; animation: toast 2.4s ease both; z-index: 5; white-space: nowrap; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 10px); } 12%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .tape.measuring .fill { width: 100%; }
+}
+
+/* ---- v4: honest promise strip ---- */
+.promise { display: flex; flex-direction: column; gap: 12px; }
+.promise p.straight { font: italic 400 1.28rem/1.3 var(--font-accent); }
+.values { display: flex; flex-wrap: wrap; gap: 8px; }
+.value { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px 6px 7px; border-radius: 999px; background: var(--field); border: 1px solid var(--line); font-size: 0.86rem; }
+.value svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nudge { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px dashed var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--bg)); }
+.nudge p { min-width: 0; }
+
+/* ---- v4: the try-on stage ---- */
+.stage { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
+@media (min-width: 560px) { .stage { grid-template-columns: 220px 1fr; } }
+.stage .sketch { max-width: 230px; margin-inline: auto; }
+.sketch .hit { fill: transparent; cursor: pointer; }
+.sketch .pin { cursor: pointer; outline: none; }
+.sketch .pin .halo { fill: currentColor; opacity: 0; stroke: none; transition: opacity .2s; }
+.sketch .pin.idle .halo { animation: glow 2.2s ease-in-out infinite; }
+.sketch .pin.on .halo { opacity: .28; }
+.sketch .pin.on circle.dot { transform: scale(1.18); transform-box: fill-box; transform-origin: center; }
+.sketch .pin:focus-visible .halo { opacity: .35; }
+@keyframes glow { 0%, 100% { opacity: 0; } 50% { opacity: .22; } }
+.sketch .pin circle.dot { fill: currentColor; stroke: var(--field); stroke-width: 2.5; transition: transform .2s; }
+.sketch .pin.todo circle.dot { fill: var(--field); stroke: var(--muted); stroke-dasharray: 3 2.5; stroke-width: 1.6; }
+.sketch .pin.todo text { fill: var(--muted); }
+.sketch .pin.cur circle.dot { fill: var(--accent); stroke: var(--field); stroke-dasharray: none; stroke-width: 2.5; }
+.sketch .pin.cur text { fill: var(--accent-fg); }
+.sketch .pin.cur .halo { fill: var(--accent); animation: glow 1.4s ease-in-out infinite; }
+.sketch .zonehl { fill: var(--tape); opacity: .55; stroke: none; }
+.zinfo { min-height: 250px; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.zinfo .zhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.zinfo h3 { font-size: 1.15rem; }
+.zinfo.swap { animation: fadein .22s ease both; }
+@keyframes fadein { from { opacity: .3; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.zdots { display: flex; flex-wrap: wrap; gap: 6px; }
+.zdot { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--field); font-size: 0.82rem; cursor: pointer; }
+.zdot i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.zdot span { color: var(--fg); }
+.zdot[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* Why we think so */
+.reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.reasons li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+.reasons .ri { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--tape-soft); color: var(--tape-ink); }
+.reasons .ri svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.reasons li.you .ri { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+.reasons p { font-size: 0.97rem; }
+.reasons p em { font-style: normal; font-weight: 700; }
+.more-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: 12px 16px; border-radius: 12px; border: 1px dashed var(--muted); background: none; cursor: pointer; font: 700 0.98rem/1.2 var(--font-body); color: var(--fg); }
+.more-toggle .chev { transition: transform .25s; font-family: var(--font-mono); }
+.more-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.more { display: flex; flex-direction: column; gap: 26px; }
+.more.fx-open { animation: unroll .45s cubic-bezier(.2,.8,.2,1) both; }
+
+/* ---- v4: fit report page ---- */
+.qcard { display: flex; flex-direction: column; gap: 12px; }
+.qcard h2 { font-size: 1.3rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.tile {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px;
+  min-height: 112px; padding: 12px 8px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--field);
+  cursor: pointer; text-align: center; font: 700 0.88rem/1.2 var(--font-body);
+  transition: transform .1s ease, border-color .15s ease, background-color .15s;
+}
+.tile:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.tile:active { transform: scale(.96); }
+.tile .pic { width: 64px; height: 46px; display: block; }
+.tile .pic svg { width: 100%; height: 100%; overflow: visible; }
+.tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--field)); }
+.tile[aria-pressed="true"]::after { content: "✓"; position: absolute; top: 6px; right: 8px; font: 700 0.8rem/1 var(--font-mono); color: var(--accent); }
+.tile.just { animation: pick .38s cubic-bezier(.3,1.7,.5,1); }
+.tiles.wide { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+/* pictograms */
+.pg { fill: none; stroke: var(--fg); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pg-body { fill: color-mix(in srgb, var(--muted) 22%, transparent); stroke: none; }
+.pg-fab { fill: none; stroke-width: 2; stroke: currentColor; }
+.pg-fab.dash { stroke-dasharray: 3 2.5; }
+.pg-fill { fill: currentColor; stroke: none; opacity: .18; }
+.pg-ref { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 2; fill: none; }
+.pg-floor { stroke: var(--muted); stroke-width: 1.4; }
+.pg-ic { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tile .pic.ic svg { width: 34px; height: 34px; margin: 6px auto 0; display: block; color: var(--accent); }
+.answered-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.answered-strip button { font-size: 0.82rem; }
+.edit-pen { opacity: .6; font-size: .8em; }
+
+.sketch .zarea { fill: var(--tape); opacity: 0; transition: opacity .25s; pointer-events: none; }
+.sketch .zarea.show { opacity: .55; }
+#app .view .stage .sketch .pin.cur ~ .zarea { opacity: .55; }
+.sketch .pin circle.hit { fill: transparent; stroke: none; }
+.sketch .pin circle.halo { stroke: none; }
+.tile .pic.ic svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.zinfo.done { min-height: 0; }
+.ttag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 4px; border: 1px dashed currentColor; font: 600 0.7rem/1.2 var(--font-mono); letter-spacing: .04em; }
+.ttag svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ttag.easy { color: var(--good); } .ttag.ok { color: var(--roomy); } .ttag.hard { color: var(--snug); } .ttag.no { color: var(--bad); }
+textarea.notes { width: 100%; min-height: 84px; resize: vertical; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+textarea.notes:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <button class="mark" type="button" data-act="home" aria-label="Fit Notes home"><b>Fit Notes</b><span class="seal">Demo</span></button>
+    <div class="navr">
+      <span id="who" class="eyebrow"></span>
+      <button type="button" class="eyebrow" id="theme" aria-label="Switch to night theme">Night</button>
+    </div>
+  </nav>
+  <div id="backbar" class="backbar" hidden></div>
+  <main id="app" aria-live="polite"></main>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- Theme ---------- */
+var root = document.documentElement, themeBtn = document.getElementById("theme");
+var darkMq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+try { var savedTheme = localStorage.getItem("fitnotes.theme"); if (savedTheme) root.dataset.theme = savedTheme; } catch (e) {}
+function isDark() { return root.dataset.theme ? root.dataset.theme === "dark" : !!(darkMq && darkMq.matches); }
+function themeLabel() { var d = isDark(); themeBtn.textContent = d ? "Day" : "Night"; themeBtn.setAttribute("aria-label", d ? "Switch to day theme" : "Switch to night theme"); }
+themeBtn.addEventListener("click", function () {
+  root.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("fitnotes.theme", root.dataset.theme); } catch (e) {}
+  themeLabel();
+});
+if (darkMq && darkMq.addEventListener) darkMq.addEventListener("change", themeLabel);
+themeLabel();
+
+/* ---------- Saved data (this browser only, in the demo) ---------- */
+var KEY = "fitnotes.demo.v1";
+function fresh() { return { schema: "fitnotes.v1", user: null, favorites: [], checks: [] }; }
+function load() {
+  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.schema === "fitnotes.v1") return s; } catch (e) {}
+  return fresh();
+}
+var S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+var U = { view: S.user ? "home" : "signin", draft: null, checkId: null, size: null, sv: null, provider: null, err: "" };
+
+/* ---------- Small helpers ---------- */
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; }
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function inch(x) {
+  var r = Math.round(Math.abs(x) * 2) / 2;
+  if (r < 0.5) return "under ½";
+  var whole = Math.floor(r), half = r - whole ? "½" : "";
+  return (whole ? whole : "") + half;
+}
+function now() { return new Date().toISOString(); }
+function findCheck(id) { for (var i = 0; i < S.checks.length; i++) if (S.checks[i].id === id) return S.checks[i]; return null; }
+function vibrate() { try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
+
+/* ---------- Reading a link ---------- */
+var BRANDS = {
+  "levi.com": "Levi's", "madewell.com": "Madewell", "everlane.com": "Everlane", "uniqlo.com": "Uniqlo",
+  "gap.com": "Gap", "oldnavy.com": "Old Navy", "bananarepublic.com": "Banana Republic", "jcrew.com": "J.Crew",
+  "zara.com": "Zara", "hm.com": "H&M", "aritzia.com": "Aritzia", "abercrombie.com": "Abercrombie & Fitch",
+  "asos.com": "ASOS", "nordstrom.com": "Nordstrom", "agolde.com": "AGOLDE", "cos.com": "COS",
+  "lululemon.com": "lululemon", "anthropologie.com": "Anthropologie", "thereformation.com": "Reformation",
+  "amazon.com": "Amazon", "mango.com": "Mango", "urbanoutfitters.com": "Urban Outfitters", "aloyoga.com": "Alo",
+  "carhartt.com": "Carhartt", "dickies.com": "Dickies", "wranglerjeans.com": "Wrangler", "frame-store.com": "FRAME",
+  "target.com": "Target", "shein.com": "SHEIN", "freepeople.com": "Free People", "quince.com": "Quince"
+};
+var CAT_RX = {
+  dress: /dress|jumpsuit|romper|gown|sundress/,
+  pants: /jean|denim(?!-jacket)|pant|trouser|chino|legging|jogger|slack|cargo|short|culotte|501|flare/,
+  top: /shirt|tee|t-shirt|\btop|blouse|sweater|cardigan|tank|cami|polo|hoodie|sweatshirt|knit|turtleneck|crew-?neck|v-?neck|jacket|blazer|coat|bodysuit/
+};
+function traitsOf(s) {
+  return {
+    wide: /wide|palazzo|flare|barrel|baggy|bootcut/.test(s), skinny: /skinny|legging|jegging|slim-fit|slim/.test(s),
+    highRise: /high-?rise|high-?waist/.test(s), lowRise: /low-?rise/.test(s),
+    stretch: /stretch|legging|jegging|ponte|knit/.test(s), oversized: /oversiz|boxy|relaxed|boyfriend|slouch/.test(s),
+    fitted: /fitted|baby-?tee|bodycon|slim/.test(s), vneck: /v-?neck/.test(s), scoop: /scoop/.test(s), crew: /crew/.test(s),
+    petite: /petite/.test(s), tall: /(^|[^a-z])tall([^a-z]|$)/.test(s), curvy: /curv/.test(s),
+    crop: /crop|ankle/.test(s), mini: /mini/.test(s), midi: /midi/.test(s), maxi: /maxi/.test(s),
+    shift: /shift|smock|tent/.test(s), bodycon: /bodycon/.test(s), jean: /jean|denim|501|\b5\d\d\b/.test(s)
+  };
+}
+function parseLink(raw) {
+  var s = String(raw || "").trim();
+  if (!s) return null;
+  if (!/^https?:\/\//i.test(s)) s = "https://" + s;
+  var u; try { u = new URL(s); } catch (e) { return null; }
+  if (!/\./.test(u.hostname)) return null;
+  var host = u.hostname.toLowerCase().replace(/^(www\d?|shop|us|m)\./, "");
+  var brand = null;
+  Object.keys(BRANDS).forEach(function (d) { if (host === d || host.slice(-d.length - 1) === "." + d || host.indexOf(d.replace(".com", ".")) === 0) brand = BRANDS[d]; });
+  var known = !!brand;
+  if (!brand) { var parts = host.split("."); var b = parts.length > 1 ? parts[parts.length - 2] : parts[0]; brand = b.charAt(0).toUpperCase() + b.slice(1); }
+  var path = decodeURIComponent(u.pathname + " " + u.search).toLowerCase();
+  var segs = u.pathname.split("/").map(function (x) { try { return decodeURIComponent(x); } catch (e) { return x; } })
+    .map(function (x) { return x.replace(/\.(html?|aspx?|php)$/i, ""); })
+    .filter(function (x) { return /[a-z]{3,}-[a-z]/i.test(x); });
+  var best = segs.sort(function (a, b) { return b.length - a.length; })[0] || "";
+  var words = best.split(/[-_]+/).filter(function (w) { return w && !/\d/.test(w) || /^\d{3}$/.test(w); });
+  var title = words.slice(0, 9).map(function (w) { return w === "t" ? "T" : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" ").replace(/\bT Shirt\b/i, "T-Shirt").replace(/\bV Neck\b/i, "V-Neck");
+  var blob = (path + " " + title.toLowerCase()).replace(/\s+/g, " ");
+  var cat = null;
+  if (CAT_RX.dress.test(blob)) cat = "dress"; else if (CAT_RX.pants.test(blob)) cat = "pants"; else if (CAT_RX.top.test(blob)) cat = "top";
+  return { url: u.href, host: host, brand: brand, knownBrand: known, title: title || (brand + " item"), category: cat, traits: traitsOf(blob) };
+}
+
+/* ---------- Fit model (simulated measurements) ---------- */
+var CATS = {
+  pants: { name: "pants", one: "pair of pants", zones: [["waist", "Waist"], ["hip", "Hips"], ["rise", "Crotch & rise"], ["thigh", "Thighs"], ["length", "Length"]], key: "waist" },
+  top: { name: "tops", one: "top", zones: [["shoulder", "Shoulders"], ["chest", "Chest & torso"], ["neckline", "Neckline"], ["tlength", "Body length"], ["sleeve", "Sleeves"]], key: "chest" },
+  dress: { name: "dresses", one: "dress", zones: [["bust", "Bust"], ["dwaist", "Waist"], ["dhip", "Hips"], ["dlength", "Length"]], key: "bust" }
+};
+// Size systems. b = the body measurement (in) a size is cut for: waist for pants, bust/chest for tops and dresses.
+var SIZE_SYS = {
+  letter: { name: "Letter", sizes: ["3XS", "XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"], b: { pants: [22, 23.5, 25, 27, 29, 31.5, 34, 37, 40], top: [29, 30.5, 32, 34, 36.5, 39, 42, 45, 48] } },
+  asia: { name: "Asian letter", sizes: ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"], b: { pants: [22, 23.5, 25.5, 27.5, 30, 32.5, 35, 38], top: [29, 30.5, 32.5, 35, 37.5, 40.5, 43.5, 46.5] } },
+  num: { name: "Waist", sizes: ["22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37"] },
+  us: { name: "US", sizes: ["000", "00", "0", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20"], b: { pants: [23, 24, 25, 26, 27, 28, 29, 30, 31.5, 33, 34.5, 36, 38], top: [30, 31, 32, 33, 34, 35, 36, 37, 38.5, 40, 41.5, 43, 45] } },
+  eu: { name: "EU", sizes: ["32", "34", "36", "38", "40", "42", "44", "46", "48"], b: { pants: [24.5, 26, 27.5, 29, 30.5, 32, 34, 36, 38], top: [31.5, 33, 34.5, 36, 38, 40, 42, 44, 46] } },
+  uk: { name: "UK", sizes: ["4", "6", "8", "10", "12", "14", "16", "18", "20"], b: { pants: [25, 26, 27, 28, 29, 30, 31.5, 33, 34.5], top: [32, 33, 34, 35, 36, 37, 38.5, 40, 41.5] } }
+};
+var LETTERS = SIZE_SYS.letter.sizes;
+function sizeList(sys) { return (SIZE_SYS[sys] || SIZE_SYS.letter).sizes; }
+function bOf(cat, sys, size) {
+  if (sys === "num") return parseFloat(size);
+  var S0 = SIZE_SYS[sys] || SIZE_SYS.letter, i = S0.sizes.indexOf(size);
+  if (i < 0) { S0 = SIZE_SYS.letter; i = S0.sizes.indexOf(size); }
+  if (i < 0) return cat === "pants" ? 29 : 36;
+  return S0.b[cat === "pants" ? "pants" : "top"][i];
+}
+function offsets(brand) {
+  var o = {}; ["a", "b", "c", "d", "e"].forEach(function (k) { o[k] = (hash(brand + ":" + k) - 0.5) * 1.2; }); return o;
+}
+function measure(cat, b, tr, brand) {
+  var o = offsets(brand), m = {};
+  if (cat === "pants") {
+    m.waist = b + 0.5 + o.a + (tr.stretch ? -0.4 : 0);
+    m.hip = b + 9.5 + o.b + (tr.wide ? 0.6 : 0) + (tr.skinny ? -0.6 : 0) + (tr.curvy ? 1.6 : 0);
+    m.rise = 10.6 + (b - 27) * 0.18 + o.c * 0.8 + (tr.highRise ? 1.1 : 0) + (tr.lowRise ? -1.3 : 0);
+    m.thigh = 0.42 * b + 11.2 + o.d + (tr.wide ? 2.6 : 0) + (tr.skinny ? -1.6 : 0);
+    m.length = 30.5 + o.e * 2 + (tr.wide ? 1.2 : 0) + (tr.crop ? -3 : 0) + (tr.tall ? 3 : 0) + (tr.petite ? -2.5 : 0);
+  } else if (cat === "top") {
+    m.shoulder = 14.6 + (b - 34) * 0.25 + o.b * 0.6 + (tr.oversized ? 1.8 : 0) + (tr.fitted ? -0.4 : 0);
+    m.chest = b + 3 + o.a * 1.2 + (tr.oversized ? 5 : 0) + (tr.fitted ? -1.5 : 0);
+    m.neckline = 6.8 + (b - 34) * 0.22 + o.c * 0.5;
+    m.tlength = 25.5 + (b - 34) * 0.35 + o.d * 1.2 + (tr.crop ? -4.5 : 0) + (tr.oversized ? 1.6 : 0) + (tr.tall ? 1.5 : 0) + (tr.petite ? -1.5 : 0);
+    m.sleeve = 7.6 + (b - 34) * 0.18 + o.e * 0.6 + (tr.oversized ? 1.8 : 0);
+  } else {
+    m.bust = b + 2 + o.a;
+    m.dwaist = b - 6.5 + o.b + (tr.shift ? 4 : 0);
+    m.dhip = b + 4 + o.c + (tr.shift ? 1.5 : 0) + (tr.bodycon ? -2 : 0);
+    m.dlength = 39 + o.d * 2.5 + (tr.mini ? -6 : 0) + (tr.midi ? 6 : 0) + (tr.maxi ? 13 : 0) + (tr.tall ? 2 : 0) + (tr.petite ? -2 : 0);
+  }
+  return m;
+}
+var MEAS_NAME = { waist: "Waist (flat ×2)", hip: "Hip", rise: "Front rise", thigh: "Thigh", length: "Inseam", shoulder: "Shoulder", chest: "Chest", neckline: "Neck opening", tlength: "Body length", sleeve: "Sleeve", bust: "Bust", dwaist: "Waist", dhip: "Hip", dlength: "Length" };
+// Boundaries (inches, this size minus your favorite) between: too tight | snug | like favorite | roomy | too loose
+var TH = {
+  waist: [-1.25, -0.4, 0.4, 1.5], hip: [-1.5, -0.5, 0.6, 2], rise: [-0.9, -0.3, 0.4, 1.1], thigh: [-1.2, -0.4, 0.5, 1.6], length: [-2, -0.75, 0.75, 2],
+  shoulder: [-0.9, -0.3, 0.4, 1], chest: [-2, -0.75, 1, 3], neckline: [-0.8, -0.25, 0.25, 0.8], tlength: [-2.5, -1, 1, 2.5], sleeve: [-1.2, -0.5, 0.5, 1.2],
+  bust: [-1.5, -0.5, 0.75, 2], dwaist: [-1.25, -0.4, 0.6, 1.75], dhip: [-1.5, -0.5, 0.75, 2.25], dlength: [-3, -1, 1, 3]
+};
+var BASE_CONF = { waist: 80, hip: 71, rise: 63, thigh: 69, length: 85, shoulder: 73, chest: 78, neckline: 72, tlength: 81, sleeve: 75, bust: 75, dwaist: 72, dhip: 71, dlength: 84 };
+function unit(z) { var t = TH[z]; return (t[3] - t[0]) / 4; }
+function levelOf(z, d) { var t = TH[z]; return d <= t[0] ? -2 : d <= t[1] ? -1 : d < t[2] ? 0 : d < t[3] ? 1 : 2; }
+
+var CHIP = {
+  _: { "-2": "Too tight", "-1": "Snug", "0": "Like your favorite", "1": "Roomier", "2": "Loose" },
+  waist: { "1": "Some gape", "2": "Gapes" },
+  rise: { "-2": "Tight crotch", "-1": "Less room", "2": "Hangs low" },
+  length: { "-2": "Cropped", "-1": "Shorter", "0": "Same length", "1": "Longer", "2": "Too long" },
+  tlength: { "-2": "Too short", "-1": "Shorter", "0": "Same length", "1": "Longer", "2": "Too long" },
+  dlength: { "-2": "Much shorter", "-1": "Shorter", "0": "Same length", "1": "Longer", "2": "Much longer" },
+  neckline: { "-2": "Sits high", "-1": "Sits flat", "0": "Like your favorite", "1": "May gape", "2": "Gapes" },
+  shoulder: { "1": "Drops a bit", "2": "Off-shoulder" },
+  chest: { "1": "More ease", "2": "Boxy" }
+};
+function chipWord(z, l) { return (CHIP[z] && CHIP[z][String(l)]) || CHIP._[String(l)]; }
+var SHORT = {
+  _: { "-2": "Tight", "-1": "Snug", "0": "Same", "1": "Roomy", "2": "Loose" },
+  waist: { "1": "Gape", "2": "Gapes" }, rise: { "1": "Roomy", "2": "Low" },
+  length: { "-2": "Cropped", "-1": "Shorter", "1": "Longer", "2": "Too long" }, tlength: { "-2": "Too short", "-1": "Shorter", "1": "Longer", "2": "Too long" },
+  dlength: { "-2": "Short", "-1": "Shorter", "1": "Longer", "2": "Long" }, neckline: { "-2": "High", "-1": "Flat", "1": "May gape", "2": "Gapes" },
+  shoulder: { "1": "Drops", "2": "Off" }, chest: { "2": "Boxy" }
+};
+var SHORT_READ = { good: "Close", ok: "Small fix", mixed: "Trade-offs", bad: "Won't fit" };
+function shortWord(z, l) { return (SHORT[z] && SHORT[z][String(l)]) || SHORT._[String(l)]; }
+function lvClass(l) { return l === 0 ? "l0" : l === -1 ? "lm1" : l === -2 ? "lm2" : l === 1 ? "l1" : "l2"; }
+
+var TXT = {
+  waist: {
+    "-2": function (a) { return "About " + a + " in smaller at the waist than your favorite. It may not close, or it will dig in when you sit."; },
+    "-1": function (a) { return "Snug at the waist, about " + a + " in firmer than your favorite. Fine if you like a secure waistband."; },
+    "0": function () { return "Sits at the waist just like your favorite."; },
+    "1": function (a) { return "About " + a + " in of gape at the back waist. A belt handles it."; },
+    "2": function (a) { return "About " + a + " in of gape at the waist. Plan to belt it or have it taken in."; } },
+  hip: {
+    "-2": function () { return "Tight through the hips. Expect pulling lines across the front and a squeeze getting them on."; },
+    "-1": function () { return "Close through the hips, a little snugger than your favorite."; },
+    "0": function () { return "Hips feel like your favorite."; },
+    "1": function () { return "Ample room in the hip."; },
+    "2": function () { return "Loose through the hip. Fabric may fold under the seat."; } },
+  rise: {
+    "-2": function () { return "Noticeably less room at the crotch. Okay standing, likely uncomfortable sitting down."; },
+    "-1": function () { return "A bit less room at the crotch than your favorite. Fine standing, may pinch when you sit."; },
+    "0": function () { return "Crotch and rise feel like your favorite, standing or sitting."; },
+    "1": function () { return "A little more room at the crotch. Comfortable sitting down."; },
+    "2": function () { return "The rise runs long on you, so the crotch may hang low or look baggy."; } },
+  thigh: {
+    "-2": function () { return "Tight in the thighs, especially sitting or taking stairs."; },
+    "-1": function () { return "Close through the thigh, a touch snugger than your favorite."; },
+    "0": function () { return "Thigh room matches your favorite."; },
+    "1": function () { return "Comfortable in the thighs with a little extra room."; },
+    "2": function () { return "Very roomy in the thigh. Reads relaxed or baggy."; } },
+  length: {
+    "-2": function (a) { return "About " + a + " in shorter than your favorite. Ends above the ankle at a cropped angle, whether you want that or not."; },
+    "-1": function (a) { return "About " + a + " in shorter than your favorite. Hits around the ankle bone."; },
+    "0": function () { return "Same length as your favorite."; },
+    "1": function (a) { return "About " + a + " in longer. Breaks over your shoe; fine with a small heel."; },
+    "2": function (a) { return "About " + a + " in longer than your favorite. Likely drags on the floor in flats, so plan to hem or cuff."; } },
+  shoulder: {
+    "-2": function () { return "Shoulder seams sit inside your shoulders. You'll feel it reaching forward."; },
+    "-1": function () { return "Shoulders a little narrower than your favorite, a neat fitted line."; },
+    "0": function () { return "Shoulder seams land where your favorite's do."; },
+    "1": function () { return "Shoulder seams drop a little past your shoulder, a relaxed look."; },
+    "2": function () { return "Seams fall well off the shoulder. Reads oversized."; } },
+  chest: {
+    "-2": function () { return "Tight across the chest. Fabric or buttons may pull."; },
+    "-1": function () { return "Closer through the chest than your favorite."; },
+    "0": function () { return "Chest and torso room match your favorite."; },
+    "1": function () { return "More ease through the torso than your favorite."; },
+    "2": function () { return "Lots of torso ease. Drapes loose and boxy."; } },
+  neckline: {
+    "-2": function (a, c) { return "The " + c.neck + " sits high and close. May feel tight at the neck."; },
+    "-1": function (a, c) { return "The " + c.neck + " will sit fairly flat against you."; },
+    "0": function (a, c) { return "The " + c.neck + " sits about like your favorite's."; },
+    "1": function (a, c) { return "The " + c.neck + " may gape a little when you lean forward."; },
+    "2": function (a, c) { return "The " + c.neck + " will likely gape and show more than you expect."; } },
+  tlength: {
+    "-2": function (a) { return "About " + a + " in shorter than your favorite. May show skin when you raise your arms."; },
+    "-1": function () { return "A bit shorter than your favorite. Hits around the waistband."; },
+    "0": function () { return "Same length as your favorite."; },
+    "1": function (a) { return "About " + a + " in longer. Easy to tuck."; },
+    "2": function (a) { return "About " + a + " in longer. Covers the hips; hard to wear untucked unless that's the look you want."; } },
+  sleeve: {
+    "-2": function () { return "Sleeves are tight around the arm."; },
+    "-1": function () { return "Sleeves are a little closer than your favorite."; },
+    "0": function () { return "Sleeves feel like your favorite."; },
+    "1": function () { return "Sleeves are a bit looser and longer."; },
+    "2": function () { return "Sleeves are wide and long, part of an oversized look."; } },
+  bust: {
+    "-2": function () { return "Tight across the bust. Seams or buttons may pull."; },
+    "-1": function () { return "Close through the bust, snugger than your favorite."; },
+    "0": function () { return "Bust fits like your favorite."; },
+    "1": function () { return "A little extra room at the bust."; },
+    "2": function () { return "Loose at the bust. May gape at the armholes."; } },
+  dwaist: {
+    "-2": function () { return "Tight at the waist. Likely hard to zip."; },
+    "-1": function () { return "Defined, snug waist."; },
+    "0": function () { return "Waist sits like your favorite."; },
+    "1": function () { return "Relaxed at the waist."; },
+    "2": function () { return "Loose at the waist. Shape will hang straight unless belted."; } },
+  dhip: {
+    "-2": function () { return "Tight at the hips. Expect it to ride up when you walk."; },
+    "-1": function () { return "Close through the hips."; },
+    "0": function () { return "Hips fit like your favorite."; },
+    "1": function () { return "Room through the hips. Easy to move in."; },
+    "2": function () { return "Very loose through the hips."; } },
+  dlength: {
+    "-2": function (a) { return "About " + a + " in shorter than your favorite, so it will sit higher on your leg. Expect to watch it when you sit or bend."; },
+    "-1": function (a) { return "About " + a + " in shorter than your favorite."; },
+    "0": function () { return "Same length as your favorite."; },
+    "1": function (a) { return "About " + a + " in longer than your favorite."; },
+    "2": function (a) { return "About " + a + " in longer than your favorite, so on you it will fall noticeably lower than the piece you love. Easy to hem."; } }
+};
+function extraNote(z, l, ctx) {
+  if (z === "chest" && ctx.refOversized && l >= 1) return " That's close to the oversized feel you like in your favorite.";
+  if (z === "chest" && ctx.refOversized && l <= 0) return " It fits closer than your oversized favorite, so you'll lose some of that easy feel.";
+  if (/length/.test(z) && l >= 1 && ctx.shorter) return " It also comes in " + ctx.shorter + ", which would likely fix this.";
+  if (z === "length" && l >= 1 && ctx.hems) return " You've hemmed pants before, so this is an easy fix for you.";
+  return "";
+}
+
+/* What past fit reports teach us, per category */
+var ANS_LEVEL = {}; // filled from survey definitions below
+function profileFor(cat, excludeId) {
+  var reps = S.checks.filter(function (c) { return c.category === cat && c.id !== excludeId && c.survey && c.survey.bought === "yes" && c.survey.fit; });
+  var bias = {}, n = {}, src = {};
+  reps.forEach(function (c) {
+    Object.keys(c.survey.fit).forEach(function (z) {
+      var f = c.survey.fit[z]; if (typeof f.felt !== "number" || typeof f.predicted !== "number") return;
+      bias[z] = (bias[z] || 0) + (f.felt - f.predicted); n[z] = (n[z] || 0) + 1; src[z] = c.candidate.brand + " " + (c.candidate.title || "");
+    });
+  });
+  Object.keys(bias).forEach(function (z) { bias[z] = clamp(bias[z] / (n[z] + 1), -2, 2); });
+  var hems = reps.some(function (c) { return (c.survey.tailoring || []).indexOf("Hemmed") >= 0; });
+  var returnsForFit = reps.filter(function (c) { return c.survey.outcome === "Returned it" && c.survey.returnReason === "The fit"; }).length;
+  return { reports: reps.length, bias: bias, counts: n, source: src, hems: hems, returnsForFit: returnsForFit };
+}
+
+function computeInsights(check) {
+  var cat = check.category, C = CATS[cat], cand = check.candidate, ref = check.reference;
+  var prof = profileFor(cat, check.id);
+  var refB = bOf(cat, ref.system, ref.size);
+  var refM = measure(cat, refB, ref.traits, ref.brand);
+  // An oversized favorite tells us the body size; compare a non-oversized item against that, and say what ease is lost.
+  if (cat === "top" && ref.traits.oversized && !cand.traits.oversized) {
+    var bodyTr = JSON.parse(JSON.stringify(ref.traits)); bodyTr.oversized = false;
+    refM = measure(cat, refB, bodyTr, ref.brand);
+  }
+  var csz = sizingFor(cand, cat);
+  var sys = cand.system || csz.sys;
+  var list = cand.sizes || csz.sizes;
+  var best = 0, bestD = 1e9;
+  list.forEach(function (s, i) { var d = Math.abs(measure(cat, bOf(cat, sys, s), cand.traits, cand.brand)[C.key] - refM[C.key]); if (d < bestD) { bestD = d; best = i; } });
+  var lo = clamp(best - 1, 0, list.length - 3);
+  var sizes = list.slice(lo, lo + 3);
+  var ctx = {
+    neck: cand.traits.vneck ? "V-neck" : cand.traits.scoop ? "scoop neck" : cand.traits.crew ? "crew neck" : "neckline",
+    refOversized: !!ref.traits.oversized, hems: prof.hems,
+    shorter: (csz.variants || []).filter(function (v) { return /petite|short/i.test(v); })[0] && !cand.traits.petite ? (csz.variants || []).filter(function (v) { return /petite|short/i.test(v); })[0] : null
+  };
+  var out = {};
+  sizes.forEach(function (s) {
+    var m = measure(cat, bOf(cat, sys, s), cand.traits, cand.brand);
+    var zones = C.zones.map(function (zz) {
+      var z = zz[0], raw = m[z] - refM[z];
+      var shift = (prof.bias[z] || 0) * unit(z) * 0.8;
+      var d = raw + shift;
+      var l = levelOf(z, d);
+      var t = TH[z], margin = Math.min.apply(null, t.map(function (x) { return Math.abs(d - x); }));
+      var conf = BASE_CONF[z] - (cand.knownBrand ? 0 : 6) - (ref.knownBrand ? 0 : 5) - ((cand.traits.stretch || ref.traits.stretch) ? 4 : 0)
+        + Math.min(15, 6 * (prof.counts[z] || 0)) + (margin > 0.4 * unit(z) ? 4 : margin < 0.12 * unit(z) ? -7 : 0);
+      conf = Math.round(clamp(conf, 52, 95));
+      var personal = null;
+      if (Math.abs(shift) >= 0.2) personal = "Adjusted " + (shift > 0 ? "+" : "−") + inch(shift) + " in from your " + esc(prof.source[z].trim()) + " report.";
+      return { zone: z, label: zz[1], this_size_in: +m[z].toFixed(1), favorite_in: +refM[z].toFixed(1), diff_in: +d.toFixed(2), level: l,
+        verdict: chipWord(z, l), text: TXT[z][String(l)](inch(d), ctx) + extraNote(z, l, ctx), confidence: conf, personal: personal };
+    });
+    out[s] = { zones: zones, read: honestRead(cat, zones), motion: motionNotes(cat, zones) };
+  });
+  return { system: sys, sizes: sizes, bySize: out, personalizedFrom: prof.reports, profile: prof };
+}
+function lv(zones, z) { for (var i = 0; i < zones.length; i++) if (zones[i].zone === z) return zones[i].level; return 0; }
+function honestRead(cat, zones) {
+  var soft = { length: 1, neckline: 1, tlength: 1, dlength: 1, sleeve: 1 };
+  var blockers = zones.filter(function (z) { return z.level === -2 && !soft[z.zone]; });
+  if (blockers.length) return { tone: "bad", label: "Unlikely to work", why: "Too tight at the " + blockers.map(function (b) { return b.label.toLowerCase(); }).join(" and ") + "." };
+  var off = zones.filter(function (z) { return z.level !== 0; });
+  var fixable = off.filter(function (z) { return z.level > 0 && /^(waist|hip|thigh|length|chest|sleeve|tlength|dwaist|dhip|dlength)$/.test(z.zone); });
+  if (!off.length) return { tone: "good", label: "Close to your favorite", why: "Every fit point lines up with the piece you love." };
+  if (off.length === fixable.length) {
+    var onlyLen = fixable.every(function (z) { return /length/.test(z.zone); }), onlyWaist = fixable.every(function (z) { return z.zone === "waist"; });
+    return { tone: "ok", label: onlyLen ? "Needs a hem" : onlyWaist ? "Works with a belt" : "Tailor can fix", why: "The parts a tailor can't change fit like your favorite. The " + fixable.map(function (z) { return z.label.toLowerCase(); }).join(" and ") + " can be taken in or hemmed." };
+  }
+  if (off.length === 1 && Math.abs(off[0].level) === 1) return { tone: "good", label: "Close to your favorite", why: "One small difference at the " + off[0].label.toLowerCase() + "." };
+  var same = zones.filter(function (z) { return z.level === 0; }).map(function (z) { return z.label.toLowerCase(); });
+  var worst = off.slice().sort(function (a, b) { return Math.abs(b.level) - Math.abs(a.level); })[0];
+  return { tone: "mixed", label: "Trade-offs", why: (same.length ? "Like your favorite at the " + same.join(", ") + ". " : "") + "Main catch: " + worst.verdict.toLowerCase() + " at the " + worst.label.toLowerCase() + "." };
+}
+function motionNotes(cat, zones) {
+  var L = function (z) { return lv(zones, z); };
+  if (cat === "pants") {
+    var stand = (L("hip") === -2 || L("waist") === -2) ? "Tight even standing still." : L("length") === 2 ? "Fine, but the hem will drag in flats." : "Comfortable.";
+    var sit = (L("rise") <= -1 || L("waist") <= -1 || L("thigh") <= -1) ? "Likely uncomfortable. Expect pinching at the " + (L("rise") <= -1 ? "crotch" : L("waist") <= -1 ? "waist" : "thighs") + "." : (L("waist") >= 1 ? "Comfortable, though the back waist may gape when you lean." : "Comfortable.");
+    return [["Standing", stand], ["Sitting", sit]];
+  }
+  if (cat === "top") {
+    var lean = L("neckline") >= 1 ? "The neckline will open up." : "Neckline stays put.";
+    var arms = (L("tlength") <= -1 || L("shoulder") <= -1) ? "Likely rides up or pulls across the back." : "Stays in place.";
+    return [["Leaning forward", lean], ["Arms up", arms]];
+  }
+  var sitD = (L("dhip") <= -1 || L("dlength") <= -1) ? "May ride up. Check the length sitting." : "Comfortable.";
+  var walk = L("dhip") === -2 ? "Restricted stride." : "Easy to walk in.";
+  return [["Sitting", sitD], ["Walking", walk]];
+}
+
+/* ---------- After-purchase survey ---------- */
+var IC = {
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
+  up: '<svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
+  in: '<svg viewBox="0 0 24 24"><path d="M3 12h7M7 8l4 4-4 4M21 12h-7M17 8l-4 4 4 4"/></svg>',
+  out: '<svg viewBox="0 0 24 24"><path d="M10 12H3M6 8l-4 4 4 4M14 12h7M18 8l4 4-4 4"/></svg>',
+  dot: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+  bag: '<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
+  scissors: '<svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8 8.5L20 17M8 15.5L20 7"/></svg>',
+  ret: '<svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-2"/></svg>',
+  swap: '<svg viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg>',
+  heart: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>'
+};
+function o(label, felt, icon, sub) { return { label: label, felt: felt, icon: icon || "dot", sub: sub }; }
+var FIT_Q = {
+  waist: { q: "How was the waist?", opts: [o("Gaped at the back", 1.5, "out"), o("Just right", 0, "check"), o("Snug, but fine", -1, "in"), o("Too tight", -2, "x")] },
+  rise: { q: "How did the crotch feel?", opts: [o("Tight", -1.5, "in", "Pulled or pinched"), o("Just right", 0, "check"), o("Low or baggy", 1.5, "down")] },
+  hip: { q: "Across the hips?", opts: [o("Pulled across", -1.5, "in", "Strain lines at the front"), o("Just right", 0, "check"), o("Loose", 1.5, "out")] },
+  thigh: { q: "How was the thigh room?", opts: [o("Tight", -1.5, "in"), o("Just right", 0, "check"), o("Roomy, and I liked it", 1, "out"), o("Too baggy", 2, "x")] },
+  length: { q: "Where did the hem land?", opts: [o("Dragged on the floor", 2, "down"), o("Bunched at my shoe", 1, "down"), o("Just right", 0, "check"), o("Hit at the ankle", -1, "up"), o("Cropped higher than I wanted", -2, "up", "Ended at a tighter angle")] },
+  shoulder: { q: "Where did the shoulder seams sit?", opts: [o("Too narrow", -1.5, "in", "Pulled when I reached"), o("Right on my shoulder", 0, "check"), o("Dropped a little", 1, "down"), o("Way off my shoulder", 2, "out")] },
+  chest: { q: "Chest and torso?", opts: [o("Pulled across", -1.5, "in"), o("Just right", 0, "check"), o("Relaxed, and I liked it", 1, "out"), o("Too boxy", 2, "x")] },
+  neckline: { q: "How did the neckline sit?", opts: [o("Too high or tight", -1.5, "up"), o("Sat flat", 0, "check"), o("Gaped a little", 1, "out"), o("Gaped a lot", 2, "x")] },
+  tlength: { q: "Body length?", opts: [o("Too short", -2, "up"), o("A little short", -1, "up"), o("Just right", 0, "check"), o("A little long", 1, "down"), o("Too long", 2, "down")] },
+  sleeve: { q: "Sleeves?", opts: [o("Tight", -1.5, "in"), o("Just right", 0, "check"), o("Loose", 1, "out")] },
+  bust: { q: "How was the bust?", opts: [o("Tight", -1.5, "in"), o("Just right", 0, "check"), o("Gaped", 1.5, "out")] },
+  dwaist: { q: "And the waist?", opts: [o("Tight", -1.5, "in"), o("Just right", 0, "check"), o("Loose", 1.5, "out")] },
+  dhip: { q: "Through the hips?", opts: [o("Tight, rode up", -1.5, "in"), o("Just right", 0, "check"), o("Loose", 1.5, "out")] },
+  dlength: { q: "Where did the hem land?", opts: [o("Shorter than I wanted", -1.5, "up"), o("Just right", 0, "check"), o("Longer than I wanted", 1.5, "down")] }
+};
+var TAILOR = { pants: ["Hemmed", "Took in the waist", "Tapered the leg", "Let out", "Something else"], top: ["Shortened sleeves", "Took in the sides", "Hemmed", "Something else"], dress: ["Hemmed", "Took it in", "Shortened straps", "Something else"] };
+function svSteps(check, a) {
+  var st = ["bought"];
+  if (a.bought === "Decided not to") return st.concat(["whyNot"]);
+  if (a.bought !== "Yes") return st;
+  st.push("size");
+  CATS[check.category].zones.forEach(function (z) { st.push("fit:" + z[0]); });
+  if (check.category === "pants") st.push("sitting");
+  st.push("outcome");
+  if (a.outcome === "Kept it and got it tailored") st.push("tailoring");
+  if (a.outcome === "Returned it" || a.outcome === "Exchanged for another size") st.push("returnReason");
+  st.push("accuracy");
+  return st;
+}
+function svQuestion(check, id) {
+  if (id === "bought") return { q: "Did you end up buying the " + esc(check.candidate.title.replace(/^the\s+/i, "")) + "?", opts: [o("Yes", null, "bag"), o("Not yet", null, "clock", "We'll ask again later"), o("Decided not to", null, "x")] };
+  if (id === "whyNot") return { q: "What made you pass?", opts: [o("The fit notes talked me out of it", null, "dot"), o("The price", null, "dot"), o("Found something else", null, "dot"), o("Just wasn't feeling it", null, "dot")] };
+  if (id === "size") return { q: "Which size did you get?", sizes: true, opts: check.insights.sizes.map(function (s) { return o(s, null, "dot"); }).concat([o("A different size", null, "dot")]) };
+  if (id.indexOf("fit:") === 0) { var z = id.slice(4); return { q: FIT_Q[z].q, zone: z, opts: FIT_Q[z].opts }; }
+  if (id === "sitting") return { q: "Sitting down for an hour?", opts: [o("Comfortable", null, "check"), o("Fine", null, "dot"), o("Wanted to unbutton", null, "x")] };
+  if (id === "outcome") return { q: "So what happened with it?", opts: [o("Kept it as is", null, "heart"), o("Kept it and got it tailored", null, "scissors"), o("Returned it", null, "ret"), o("Exchanged for another size", null, "swap")] };
+  if (id === "tailoring") return { q: "What did you have altered?", sub: "Pick any that apply.", multi: true, opts: TAILOR[check.category].map(function (t) { return o(t, null, "scissors"); }) };
+  if (id === "returnReason") return { q: "What was the main reason?", opts: [o("The fit", null, "dot"), o("The fabric", null, "dot"), o("Color or look", null, "dot"), o("Changed my mind", null, "dot")] };
+  if (id === "accuracy") return { q: "Did our fit notes match what you felt?", opts: [o("Spot on", null, "check"), o("Mostly", null, "dot"), o("Not really", null, "x")] };
+}
+function finishSurvey(check, a) {
+  var sv = { answeredAt: now(), bought: a.bought === "Yes" ? "yes" : a.bought === "Decided not to" ? "no" : "not_yet" };
+  if (sv.bought === "no") sv.whyNot = a.whyNot;
+  if (sv.bought === "yes") {
+    sv.size = a.size === "A different size" ? (a.sizeOther || "Other") : a.size;
+    if (a.size === "A different size") sv.sizeWrittenIn = true;
+    var ins = check.insights.bySize[a.size];
+    sv.fit = {};
+    CATS[check.category].zones.forEach(function (zz) {
+      var z = zz[0], ans = a["fit:" + z]; if (!ans) return;
+      var opt = FIT_Q[z].opts.filter(function (x) { return x.label === ans; })[0];
+      var pred = ins ? lv(ins.zones, z) : null;
+      sv.fit[z] = { answer: ans, felt: opt.felt, predicted: pred, matched: pred === null ? null : Math.abs(opt.felt - pred) <= 0.5 };
+    });
+    if (a.sitting) sv.sittingComfort = a.sitting;
+    sv.outcome = a.outcome;
+    sv.tailoring = a.tailoring || [];
+    if (a.returnReason) sv.returnReason = a.returnReason;
+    sv.notesAccuracy = a.accuracy;
+    if (a.tailoringOther) sv.tailoringOther = a.tailoringOther;
+  }
+  if (a.otherNotes) sv.otherNotes = a.otherNotes;
+  check.survey = sv.bought === "not_yet" ? null : sv;
+  if (sv.bought === "not_yet") check.remindLater = now();
+  save();
+}
+
+/* ---------- Rendering ---------- */
+var app = document.getElementById("app");
+U = { view: S.user ? "board" : "signin", lastView: null, draft: {}, checkId: null, size: null, zone: null, touched: false, more: false, rp: null, provider: null, err: {}, measuring: false, fx: {}, stack: [], just: null };
+
+/* extra line icons */
+IC.ruler = '<svg viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1"/><path d="M6 8v3M9.5 8v4M13 8v3M16.5 8v4"/></svg>';
+IC.link = '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.6-5.6l-1 1"/><path d="M14 10a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.6 5.6l1-1"/></svg>';
+IC.scale = '<svg viewBox="0 0 24 24"><path d="M12 4v16M6 20h12M5 8h14"/><path d="M5 8l-3 6a3 3 0 0 0 6 0zM19 8l-3 6a3 3 0 0 0 6 0z"/></svg>';
+IC.spark = '<svg viewBox="0 0 24 24"><path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"/></svg>';
+IC.price = '<svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>';
+IC.meh = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 15h7M9 10h.01M15 10h.01"/></svg>';
+IC.chair = '<svg viewBox="0 0 24 24"><path d="M7 3v10h10M7 13v8M17 13v8M7 9h9"/></svg>';
+IC.unbutton = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12h4M17 12h4M12 3v3M12 18v3"/></svg>';
+IC.fabric = '<svg viewBox="0 0 24 24"><path d="M4 6c3-2 5 2 8 0s5 2 8 0M4 12c3-2 5 2 8 0s5 2 8 0M4 18c3-2 5 2 8 0s5 2 8 0"/></svg>';
+IC.eye = '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+IC.waist = '<svg viewBox="0 0 24 24"><path d="M5 5h14M6 5l2 15M18 5l-2 15M10 8h4"/></svg>';
+IC.taper = '<svg viewBox="0 0 24 24"><path d="M7 3l3 18M17 3l-3 18"/></svg>';
+IC.plus = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+IC.you = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+
+function tape(n, fillPct, cls) {
+  var s = '<div class="tape ' + (cls || "") + '" aria-hidden="true">';
+  for (var i = 1; i <= n; i++) s += '<span data-n="' + i + '"></span>';
+  return s + '<i class="fill" style="width:' + (fillPct || 0) + '%"></i></div>';
+}
+function toast(msg) {
+  var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2500);
+}
+function icon(name) { return IC[name] || IC.dot; }
+function shortTitle(t) { return String(t || "").split(" ").filter(function (w) { return !/^(womens?|mens?|the)$/i.test(w); }).slice(0, 4).join(" "); }
+
+/* Style labels read from the link (the real app reads them from the product page) */
+function labelsOf(it, cat) {
+  var s = (it.url + " " + it.title).toLowerCase(), out = [];
+  if (cat === "pants") out.push(/jean|denim|501/.test(s) ? "jeans" : /short/.test(s) ? "shorts" : /legging/.test(s) ? "leggings" : "pants");
+  else if (cat === "top") out.push(/t-?shirt|tee/.test(s) ? "tee" : /sweater|knit|cardigan/.test(s) ? "knit" : /shirt|blouse/.test(s) ? "shirt" : "top");
+  else if (cat === "dress") out.push("dress");
+  var map = [[/wide/, "wide leg"], [/straight/, "straight leg"], [/skinny/, "skinny"], [/flare|bootcut/, "flare"], [/high-?rise|high-?waist/, "high rise"], [/low-?rise/, "low rise"],
+    [/curv/, "curvy"], [/tall/, "tall"], [/petite/, "petite"], [/stretch/, "stretch"], [/oversiz|boxy/, "oversized"], [/relaxed|boyfriend/, "relaxed"], [/original-fit|classic/, "classic fit"],
+    [/vintage|90s/, "vintage"], [/v-?neck/, "v-neck"], [/crew/, "crew neck"], [/scoop/, "scoop neck"], [/crop/, "cropped"], [/ankle/, "ankle length"], [/mini/, "mini"], [/midi/, "midi"], [/maxi/, "maxi"],
+    [/linen/, "linen"], [/organic|cotton/, "cotton"], [/smock/, "smocked"], [/shift/, "shift"], [/airism/, "airism"]];
+  map.forEach(function (m) { if (m[0].test(s) && out.indexOf(m[1]) < 0) out.push(m[1]); });
+  return out.slice(0, 6);
+}
+function hangTag(it, cat, swing, size) {
+  var lbls = labelsOf(it, cat || it.category);
+  return '<div class="hangtag' + (swing ? " fx-swing" : "") + (size ? " has-sz" : "") + '"><div class="hangtag-in"><span class="b">' + esc(it.brand) + (it.knownBrand ? "" : " · new to us") + '</span>' +
+    '<span class="t">' + esc(it.title) + '</span>' +
+    (lbls.length ? '<span class="lbls">' + lbls.map(function (l, i) { return '<span class="lbl' + (i === 0 && (cat || it.category) ? " cat" : "") + '">' + esc(l) + '</span>'; }).join("") + '</span>' : "") +
+    (size ? '<span class="sz">' + esc(size) + '</span>' : "") + '</div></div>';
+}
+
+/* ---------- Garment sketch ---------- */
+var SKETCH = {
+  pants: { body: "M52 18 H148 L160 228 H114 L100 100 L86 228 H40 Z", stitch: "M52 32 H148 M100 32 V80 M45 216 H85 M115 216 H155",
+    pins: { waist: [124, 25], hip: [150, 62], rise: [100, 90], thigh: [67, 124], length: [62, 222] },
+    area: { waist: [[100, 25, 50, 10]], hip: [[100, 60, 54, 16]], rise: [[100, 92, 18, 15]], thigh: [[68, 128, 22, 24], [132, 128, 22, 24]], length: [[62, 222, 26, 9], [138, 222, 26, 9]] } },
+  top: { body: "M72 26 Q100 44 128 26 L168 42 L190 92 L162 104 L156 86 L156 214 H44 L44 86 L38 104 L10 92 L32 42 Z", stitch: "M48 204 H152 M160 94 L184 84 M40 94 L16 84",
+    pins: { shoulder: [150, 40], chest: [100, 112], neckline: [100, 46], tlength: [100, 210], sleeve: [174, 82] },
+    area: { shoulder: [[48, 38, 18, 10], [152, 38, 18, 10]], chest: [[100, 112, 50, 30]], neckline: [[100, 38, 30, 14]], tlength: [[100, 210, 58, 9]], sleeve: [[176, 80, 18, 18], [24, 80, 18, 18]] } },
+  dress: { body: "M78 20 L122 20 L136 70 L124 98 L164 228 H36 L76 98 L64 70 Z", stitch: "M76 98 H124 M42 218 H158",
+    pins: { bust: [100, 60], dwaist: [100, 98], dhip: [100, 142], dlength: [100, 222] },
+    area: { bust: [[100, 62, 32, 13]], dwaist: [[100, 98, 26, 7]], dhip: [[100, 142, 42, 17]], dlength: [[100, 222, 64, 9]] } }
+};
+// pins: [{zone, cls, label, state}] ; opts: {active, animate, mode}
+function sketch(cat, pins, traits, opts) {
+  opts = opts || {};
+  var k = SKETCH[cat], neck = "";
+  if (cat === "top") neck = traits && traits.vneck ? '<path class="stitch" d="M72 26 L100 64 L128 26"/>' : '<path class="stitch" d="M78 31 Q100 50 122 31"/>';
+  var areas = pins.map(function (p) {
+    return (k.area[p.zone] || []).map(function (a) { return '<ellipse class="zarea' + (opts.active === p.zone ? " show" : "") + '" data-area="' + p.zone + '" cx="' + a[0] + '" cy="' + a[1] + '" rx="' + a[2] + '" ry="' + a[3] + '"/>'; }).join("");
+  }).join("");
+  var pinsSvg = pins.map(function (p, i) {
+    var xy = k.pins[p.zone]; if (cat === "top" && p.zone === "neckline" && traits && traits.vneck) xy = [100, 58];
+    return '<g class="pin ' + (p.cls || "") + (opts.active === p.zone ? " on" : "") + '" data-zone="' + p.zone + '" tabindex="0" role="button" aria-label="' + esc(p.name || p.zone) + '" style="animation-delay:' + (120 + i * 110) + 'ms">' +
+      '<circle class="hit" cx="' + xy[0] + '" cy="' + xy[1] + '" r="24"/><circle class="halo" cx="' + xy[0] + '" cy="' + xy[1] + '" r="19"/>' +
+      '<circle class="dot" cx="' + xy[0] + '" cy="' + xy[1] + '" r="10"/><text x="' + xy[0] + '" y="' + (xy[1] + 0.5) + '">' + (p.label != null ? p.label : i + 1) + '</text></g>';
+  }).join("");
+  return '<svg class="sketch' + (opts.animate ? " fx-pins" : "") + '" viewBox="0 0 200 240" role="group" aria-label="Garment sketch. Hover or tap a numbered spot."><path class="body" d="' + k.body + '"/>' + areas + '<path class="stitch" d="' + k.stitch + '"/>' + neck + pinsSvg + '</svg>';
+}
+function confMeter(c) { return '<span class="conf" title="How sure we are"><span class="ctape"><i style="width:' + c + '%"></i></span><span>' + c + '%<small> sure</small></span></span>'; }
+
+/* ---------- Brand size ranges (the real app reads these from the product page) ---------- */
+var BRAND_SIZING = {
+  "Levi's": { pants: { sys: "num", from: "23", to: "34", variants: ["Regular", "Short", "Long"] }, top: { sys: "letter", from: "XXS", to: "XXL" } },
+  "Madewell": { pants: { sys: "num", from: "23", to: "37", variants: ["Regular", "Petite", "Tall"] }, top: { sys: "letter", from: "XXS", to: "3XL" }, dress: { sys: "us", from: "00", to: "20", variants: ["Regular", "Petite"] } },
+  "Abercrombie & Fitch": { pants: { sys: "num", from: "23", to: "37", variants: ["Regular", "Short", "Long", "Extra Long"] }, top: { sys: "letter", from: "XXS", to: "XXL" }, dress: { sys: "letter", from: "XXS", to: "XXL" } },
+  "Gap": { pants: { sys: "num", from: "23", to: "37", variants: ["Regular", "Petite", "Tall"] }, top: { sys: "letter", from: "XXS", to: "XXL", variants: ["Regular", "Petite", "Tall"] } },
+  "Uniqlo": { all: { sys: "asia", from: "XXS", to: "3XL" } },
+  "Zara": { pants: { sys: "eu", from: "32", to: "46" }, top: { sys: "letter", from: "XS", to: "XXL" }, dress: { sys: "letter", from: "XS", to: "XXL" } },
+  "Mango": { pants: { sys: "eu", from: "32", to: "48" }, dress: { sys: "eu", from: "32", to: "48" }, top: { sys: "letter", from: "XXS", to: "XXL" } },
+  "COS": { pants: { sys: "eu", from: "32", to: "46" }, dress: { sys: "eu", from: "32", to: "46" }, top: { sys: "letter", from: "XXS", to: "XL" } },
+  "H&M": { pants: { sys: "eu", from: "32", to: "48" }, top: { sys: "letter", from: "XXS", to: "XXL" }, dress: { sys: "letter", from: "XXS", to: "XXL" } },
+  "ASOS": { all: { sys: "uk", from: "4", to: "20", variants: ["Regular", "Petite", "Tall", "Curve"] } },
+  "Aritzia": { pants: { sys: "us", from: "000", to: "16" }, dress: { sys: "us", from: "000", to: "16" }, top: { sys: "letter", from: "3XS", to: "XXL" } },
+  "Everlane": { pants: { sys: "us", from: "00", to: "16", variants: ["Regular", "Petite", "Tall"] }, top: { sys: "letter", from: "XXS", to: "XL" }, dress: { sys: "letter", from: "XXS", to: "XL" } },
+  "Reformation": { pants: { sys: "num", from: "23", to: "33", variants: ["Regular", "Petite"] }, dress: { sys: "us", from: "0", to: "12", variants: ["Regular", "Petite"] }, top: { sys: "letter", from: "XXS", to: "XL" } },
+  "J.Crew": { pants: { sys: "us", from: "000", to: "20", variants: ["Regular", "Petite", "Tall"] }, dress: { sys: "us", from: "000", to: "20", variants: ["Regular", "Petite", "Tall"] }, top: { sys: "letter", from: "3XS", to: "3XL", variants: ["Regular", "Petite", "Tall"] } },
+  "lululemon": { pants: { sys: "us", from: "0", to: "20", variants: ["28\" inseam", "25\" inseam", "31\" inseam"] }, top: { sys: "us", from: "0", to: "20" } }
+};
+function sizingFor(it, cat) {
+  var e = BRAND_SIZING[it.brand] || {}, spec = e[cat] || e.all, tr = it.traits || {};
+  if (spec && cat === "pants" && spec.sys === "num" && !tr.jean) spec = { sys: "us", from: "00", to: "16", variants: spec.variants };
+  if (!spec) spec = cat === "pants" && tr.jean ? { sys: "num", from: "23", to: "34" } : cat === "pants" ? { sys: "us", from: "00", to: "16" } : { sys: "letter", from: "XXS", to: "XXL" };
+  var all = sizeList(spec.sys), a = all.indexOf(spec.from), b = all.indexOf(spec.to);
+  return { sys: spec.sys, sizes: all.slice(a < 0 ? 0 : a, b < 0 ? all.length : b + 1), variants: spec.variants || null, note: e.note || null };
+}
+function withVariant(traits, v) {
+  var t = JSON.parse(JSON.stringify(traits || {}));
+  if (!v) return t;
+  if (/petite|short|25/i.test(v)) { t.petite = true; t.tall = false; }
+  if (/tall|long|31/i.test(v)) { t.tall = true; t.petite = false; }
+  if (/curve/i.test(v)) t.curvy = true;
+  return t;
+}
+// What a tailor can do about each spot (from the Tailor's Fit Catalog: waist, side seams, hems and taper are fixable;
+// rise, shoulders, torso length and anything too tight are not).
+function tailorTag(c, z, l) {
+  if (l === 0) return null;
+  var knit = c.candidate.traits.stretch || /tee|knit/.test((c.candidate.labels || []).join(" "));
+  var T = function (tone, text) { return { tone: tone, text: text }; };
+  var tight = l < 0;
+  switch (z) {
+    case "waist": return tight ? (l === -1 ? T("hard", "Can let out ½ in at most") : T("no", "Can't be tailored")) : T("easy", "Easy fix: take in the waist");
+    case "hip": case "dhip": return tight ? (l === -1 ? T("hard", "Little room to let out") : T("no", "Can't be tailored")) : T("easy", "Easy fix: take in the side seams");
+    case "thigh": return tight ? T("no", "Can't be tailored") : T("ok", "Tailorable: taper the leg");
+    case "rise": return tight ? T("no", "Can't be tailored") : T("hard", "Very hard to fix");
+    case "length": case "tlength": case "dlength": return tight ? T("no", "Can't add length") : T("easy", "Easy fix: hem");
+    case "shoulder": return T("no", "Not worth tailoring: buy for shoulders");
+    case "chest": case "bust": return tight ? T("no", "Can't be tailored") : knit ? T("hard", "Limited on knits") : T("ok", "Tailorable: take in the sides");
+    case "dwaist": return tight ? T("no", "Can't be tailored") : T("easy", "Easy fix: take in the waist");
+    case "neckline": return tight ? T("no", "Can't be tailored") : T("hard", "Hard to fix");
+    case "sleeve": return tight ? T("no", "Can't be tailored") : T("easy", "Easy fix: shorten the sleeves");
+  }
+  return null;
+}
+function tailorHtml(c, z, l) { var t = tailorTag(c, z, l); return t ? '<span class="ttag ' + t.tone + '">' + IC.scissors + esc(t.text) + '</span>' : ""; }
+
+/* ---------- Pictograms for answers ---------- */
+function lvOf(f) { return lvClass(Math.round(clamp(f, -2, 2))); }
+function pgRing(f) {
+  var r = Math.max(8, 16 + f * 3.4), s = '<circle class="pg-body" cx="32" cy="23" r="13.5"/>';
+  if (f > 0) s += '<circle class="pg-fill" cx="32" cy="23" r="' + r + '"/>';
+  s += '<circle class="pg-fab' + (f > 0.5 ? " dash" : "") + '" cx="32" cy="23" r="' + r + '"/>';
+  if (f < 0) [45, 135, 225, 315].forEach(function (a) { var rad = a * Math.PI / 180, c = Math.cos(rad), sn = Math.sin(rad); s += '<path class="pg-fab" d="M' + (32 + c * (r + 2)).toFixed(1) + " " + (23 + sn * (r + 2)).toFixed(1) + " L" + (32 + c * (r + (f <= -1.5 ? 7 : 4.5))).toFixed(1) + " " + (23 + sn * (r + (f <= -1.5 ? 7 : 4.5))).toFixed(1) + '"/>'; });
+  if (f >= 1) s += '<path class="pg-fab" d="M' + (32 + 14.5) + ' 23 H' + (32 + r - 1.5) + ' M' + (32 - 14.5) + ' 23 H' + (32 - r + 1.5) + '"/>';
+  if (f === 0) s += '<path class="pg-fab" d="M27 23.5 l3.5 3.5 l6.5 -7"/>';
+  return s;
+}
+function pgLeg(f) {
+  var hem = f >= 2 ? 42 : f >= 1 ? 39 : f >= 0 ? 35.5 : f > -1.5 ? 30 : 24;
+  var s = '<path class="pg-floor" d="M6 43 H58"/><path class="pg" d="M33 43 V39 Q38 37 46 39.5 L47 43" style="stroke:var(--muted)"/>';
+  s += '<path class="pg-ref" d="M14 35.5 H50"/>';
+  var leg = f <= -1.5 ? "M24 2 H38 L38 " + (hem - 3) + " L24 " + hem + " Z" : "M24 2 H38 V" + hem + " H24 Z";
+  s += '<path class="pg-fill" d="' + leg + '"/><path class="pg-fab" d="' + leg + '"/>';
+  if (f >= 2) s += '<path class="pg-fab" d="M20 43 Q31 47 44 43"/>';
+  if (f >= 1 && f < 2) s += '<path class="pg-fab" d="M24 34 l3 2 l3 -2 l3 2 l3 -2 l2 1.5"/>';
+  return s;
+}
+function pgLen(f) {
+  var hem = 30 + f * 5;
+  var s = '<path class="pg-ref" d="M10 30 H54"/>';
+  var d = "M20 4 H44 L46 " + hem + " H18 Z";
+  return s + '<path class="pg-fill" d="' + d + '"/><path class="pg-fab" d="' + d + '"/>';
+}
+function pgNeck(f) {
+  var depth = 20 + f * 4.5;
+  var s = '<path class="pg-body" d="M8 16 Q32 8 56 16 V44 H8 Z"/>';
+  s += '<path class="pg-fab" d="M6 14 Q14 8 22 8 Q32 ' + depth + ' 42 8 Q50 8 58 14"/>';
+  if (f >= 1) s += '<path class="pg-fab dash" d="M24 ' + (depth - 4) + ' Q32 ' + (depth + 6) + ' 40 ' + (depth - 4) + '"/>';
+  if (f <= -1) s += '<path class="pg-fab" d="M26 4 l3 3 M38 4 l-3 3"/>';
+  return s;
+}
+function pgShoulder(f) {
+  var x = 40 + f * 6;
+  var s = '<path class="pg-body" d="M4 44 V24 Q6 12 20 10 H40 Q46 11 46 18 V44 Z"/>';
+  s += '<path class="pg-fab" d="M2 16 Q10 8 22 8 H' + x + ' L' + (x + 8) + ' 30"/><path class="pg-fab" d="M' + x + ' 8 V' + 24 + '"/>';
+  s += '<circle cx="42" cy="12" r="2" style="fill:var(--muted)"/>';
+  return s;
+}
+function pict(zone, f) {
+  var inner = /^(length)$/.test(zone) ? pgLeg(f) : /length$/.test(zone) ? pgLen(f) : zone === "neckline" ? pgNeck(f) : zone === "shoulder" ? pgShoulder(f) : pgRing(f);
+  return '<span class="pic ' + lvOf(f) + '"><svg viewBox="0 0 64 46" aria-hidden="true">' + inner + '</svg></span>';
+}
+var OPT_ICON = {
+  "Yes": "bag", "Not yet": "clock", "Decided not to": "x",
+  "The fit notes talked me out of it": "ruler", "The price": "price", "Found something else": "eye", "Just wasn't feeling it": "meh",
+  "Comfortable": "check", "Fine": "chair", "Wanted to unbutton": "unbutton",
+  "Kept it as is": "heart", "Kept it and got it tailored": "scissors", "Returned it": "ret", "Exchanged for another size": "swap",
+  "Hemmed": "scissors", "Took in the waist": "waist", "Tapered the leg": "taper", "Let out": "out", "Something else": "plus", "Shortened sleeves": "scissors", "Took in the sides": "in", "Took it in": "in", "Shortened straps": "scissors",
+  "The fit": "ruler", "The fabric": "fabric", "Color or look": "eye", "Changed my mind": "meh",
+  "Spot on": "check", "Mostly": "dot", "Not really": "x"
+};
+
+/* ---------- Personal context ---------- */
+function prefsFor(cat, excludeId) {
+  var out = [];
+  S.checks.forEach(function (c) {
+    if (c.category !== cat || c.id === excludeId || !c.survey || c.survey.bought !== "yes") return;
+    var f = c.survey.fit || {}, nm = c.candidate.brand + " " + shortTitle(c.candidate.title);
+    if (f.thigh && f.thigh.answer === "Roomy, and I liked it") out.push("You liked the roomy thighs on your <em>" + esc(nm) + "</em>, so extra thigh room reads as a plus for you.");
+    if (f.chest && f.chest.answer === "Relaxed, and I liked it") out.push("You liked the relaxed torso on your <em>" + esc(nm) + "</em>.");
+    if (c.survey.sittingComfort === "Wanted to unbutton") out.push("Your <em>" + esc(nm) + "</em> felt tight sitting down, so we flag sitting comfort early.");
+    if (c.survey.outcome === "Returned it" && c.survey.returnReason === "The fit") out.push("You returned your <em>" + esc(nm) + "</em> for fit, so we're blunter about borderline sizes.");
+    (c.survey.tailoring || []).forEach(function (t) {
+      if (t === "Hemmed") out.push("You had your <em>" + esc(nm) + "</em> hemmed, so a long hem counts as an easy fix, not a dealbreaker.");
+      if (t === "Took in the waist") out.push("You had the waist taken in on your <em>" + esc(nm) + "</em>, so we take waist gape seriously.");
+    });
+  });
+  return out;
+}
+function reasonsFor(c, sel) {
+  var ins = c.insights, cur = ins.bySize[sel], C = CATS[c.category], r = [];
+  var same = cur.zones.filter(function (z) { return z.level === 0; }).map(function (z) { return z.label.toLowerCase(); });
+  r.push({ ic: "ruler", t: "Measured against your <em>" + esc(c.reference.brand + " " + shortTitle(c.reference.title)) + "</em> in " + esc(c.reference.size) + ", the piece you said fits you best." +
+    (same.length ? " In " + esc(sel) + ", the " + same.join(", ") + " land closest to it." : " In " + esc(sel) + ", nothing lines up exactly with it.") });
+  var prof = ins.profile || { bias: {}, source: {} };
+  var groups = {}, src = "";
+  Object.keys(prof.bias || {}).forEach(function (z) {
+    var b = prof.bias[z]; if (Math.abs(b) < 0.25) return;
+    var lab = (C.zones.filter(function (x) { return x[0] === z; })[0] || [z, z])[1].toLowerCase();
+    var k = /length/.test(z) ? (b > 0 ? "landed longer" : "landed shorter") : (b > 0 ? "felt roomier" : "felt snugger");
+    (groups[k] = groups[k] || []).push(lab); src = src || prof.source[z];
+  });
+  var gk = Object.keys(groups);
+  if (gk.length) {
+    var join = function (arr) { return arr.length > 1 ? arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1] : arr[0]; };
+    r.push({ you: true, ic: "you", t: "From your <em>" + esc(shortTitle(src)) + "</em> report: the " + join(gk.map(function (k) { return join(groups[k]) + " " + k; })) + " on you than we predicted. We've adjusted each spot for that." });
+  }
+  prefsFor(c.category, c.id).forEach(function (t) { r.push({ you: true, ic: "heart", t: t }); });
+  var lenZone = c.category === "pants" ? "length" : c.category === "top" ? "tlength" : "dlength";
+  r.push({ ic: "ruler", t: "Lengths are measured against where your favorite's hem lands on you, so your height is already built in." + (c.candidate.variant ? " We compared the " + esc(c.candidate.variant) + " cut, the same fit you wear." : "") });
+  if (c.category === "top" && c.reference.traits.oversized && !c.candidate.traits.oversized) r.push({ ic: "scale", t: "Your favorite is oversized, so we compare against the body under it and point out where this one fits closer." });
+  r.push(c.candidate.knownBrand ? { ic: "eye", t: "We know how " + esc(c.candidate.brand) + " size charts usually run." } : { ic: "eye", t: esc(c.candidate.brand) + " is new to us, so we're a little less sure on every spot." });
+  if (!ins.personalizedFrom) r.push({ ic: "spark", t: "This is your first " + esc(C.one.split(" ").pop()) + " check, so the notes lean on size charts. Tell us what you end up doing with it and <mark>your next notes get sharper.</mark>" });
+  return r;
+}
+
+/* ---------- Views ---------- */
+var SAMPLES = {
+  pants: { cand: "https://www.madewell.com/the-perfect-vintage-wide-leg-jean-NM458.html", ref: "https://www.levi.com/US/en_US/clothing/women/jeans/501-original-fit-womens-jeans/p/125010000" },
+  top: { cand: "https://www.everlane.com/products/womens-organic-cotton-v-neck-tee-white", ref: "https://www.uniqlo.com/us/en/products/E455759-000/airism-cotton-oversized-crew-neck-t-shirt" },
+  dress: { cand: "https://www.thereformation.com/products/juliette-linen-midi-dress/1311987.html", ref: "https://www.jcrew.com/p/womens/categories/clothing/dresses/smocked-shift-dress/BW123" }
+};
+var V = {};
+var REF_NAME = { pants: "Levi's 501s", top: "oversized tee", dress: "smocked dress" };
+function enterCls() { return U.view !== U.lastView ? " enter" : ""; }
+
+V.signin = function () {
+  var demo = [{ zone: "waist", cls: "l1" }, { zone: "hip", cls: "l1" }, { zone: "rise", cls: "l0" }, { zone: "thigh", cls: "l0" }, { zone: "length", cls: "l2" }];
+  var sheet = U.provider ? (
+    '<div class="bcard"><span class="tag"><b>✓</b>Demo sign-in</span>' +
+    '<p>In the real app this opens ' + esc(U.provider) + '. <span class="aside">Here, nothing is connected and nothing leaves this browser.</span></p>' +
+    '<form class="stack" data-form="name" novalidate><label class="eyebrow" for="fname">What should we call you?</label>' +
+    '<div class="seam"><input id="fname" autocomplete="given-name" placeholder="First name"><button class="btn primary" type="submit">Let\'s go</button></div></form></div>'
+  ) : (
+    '<div class="stack">' +
+    '<button class="btn" type="button" data-act="provider" data-p="Google"><span class="pmark">G</span>Continue with Google</button>' +
+    '<button class="btn" type="button" data-act="provider" data-p="Facebook"><span class="pmark">f</span>Continue with Facebook</button>' +
+    '<button class="btn" type="button" data-act="provider" data-p="Apple"><span class="pmark">A</span>Continue with Apple</button>' +
+    '<p class="aside">Signing in lets us remember how things fit you, so <mark>your next notes get sharper.</mark></p></div>'
+  );
+  return '<section class="view' + enterCls() + '">' +
+    '<h1><span class="ph">Will it fit?</span> <span class="ph">Hold it up against</span> <span class="ph">the pants you <em>already love.</em></span></h1>' +
+    sheet +
+    '<div class="bcard"><span class="tag"><b>M</b>What you\'ll see, for example</span><div class="stage">' +
+    sketch("pants", demo, {}, { animate: true, active: "waist" }) +
+    '<div class="zinfo"><div class="zhead"><h3>Waist</h3><span class="v l1">Some gape</span></div><p>About 2½ in of gape at the back waist. A belt handles it.</p>' + confMeter(81) + '<p class="aside" style="font-size:1rem">Hover or tap any spot on the garment to read how it fits there.</p></div></div></div>' +
+    '</section>';
+};
+
+function draftFromCheck(c) {
+  return {
+    cand: { url: c.candidate.url, brand: c.candidate.brand, knownBrand: c.candidate.knownBrand, title: c.candidate.title, traits: c.candidate.traits, category: c.category },
+    ref: { url: c.reference.url, brand: c.reference.brand, knownBrand: c.reference.knownBrand, title: c.reference.title, traits: c.reference.traits, category: c.category },
+    refSize: c.reference.size, refSys: c.reference.system, refVariant: c.reference.variant || null, checkId: c.id
+  };
+}
+function refSizing(d) { return sizingFor(d.ref, d.cand.category); }
+function refSystem(d) { return d.refSys || refSizing(d).sys; }
+function refSizes(d) { var z = refSizing(d); return d.refSys && d.refSys !== z.sys ? sizeList(d.refSys) : z.sizes; }
+
+V.board = function () {
+  var d = U.draft, c = U.checkId ? findCheck(U.checkId) : null, fx = U.fx;
+  var cat = d.cand && d.cand.category;
+  var h = '<section class="view' + enterCls() + '">';
+  h += '<h1>Hi ' + esc(S.user.name) + '. <span class="ph">What are you</span> <span class="ph"><em>eyeing</em> today?</span></h1>';
+  var pending = S.checks.filter(function (x) { return !x.survey && x.id !== U.checkId; });
+  var tail = "";
+  if (pending.length) tail += '<div class="nudge"><p class="small">What happened with the <b>' + esc(pending[0].candidate.brand + " " + shortTitle(pending[0].candidate.title)) + '</b>? Bought it or passed on it, either answer sharpens your notes.</p><button class="chip sm" type="button" data-act="report" data-id="' + pending[0].id + '">Update</button></div>';
+
+  // Card 1
+  h += '<div class="bcard"><span class="tag' + (cat ? " done" : "") + '"><b>' + (cat ? "✓" : "1") + '</b>The one you\'re eyeing</span>';
+  if (d.cand) {
+    h += hangTag(d.cand, cat, fx.tagA);
+    if (!cat) h += '<p class="aside">We couldn\'t tell what this is. <b>Tap one:</b></p><div class="row">' + ["pants", "top", "dress"].map(function (k) { return '<button class="chip" type="button" data-act="setcat" data-c="' + k + '">' + (k === "pants" ? "Pants" : k === "top" ? "Top" : "Dress") + '</button>'; }).join("") + '</div>';
+    h += '<button class="linkish" type="button" data-act="clear-cand">Paste a different link</button>';
+  } else {
+    h += '<form class="stack" data-form="cand" novalidate><div class="seam"><input id="cand-link" type="url" inputmode="url" autocomplete="off" placeholder="Paste a product link" aria-label="Link to the item you\'re considering" value="' + esc(d.candRaw || "") + '"><button class="btn primary" type="submit">Add</button></div>' +
+      (U.err.cand ? '<p class="hint warn">' + esc(U.err.cand) + '</p>' : "") + '</form>' +
+      '<p class="aside">Any store. No link handy? <b>Try one:</b></p><div class="row">' +
+      '<button class="chip sm lite" type="button" data-act="sample" data-c="pants">Wide-leg jeans</button>' +
+      '<button class="chip sm lite" type="button" data-act="sample" data-c="top">V-neck tee</button>' +
+      '<button class="chip sm lite" type="button" data-act="sample" data-c="dress">Linen midi dress</button></div>';
+  }
+  h += '</div>';
+
+  // Card 2
+  var refDone = d.ref && d.refSize;
+  var settled = c && !U.measuring && !U.showSizes && d.ref && c.reference.size === d.refSize && c.reference.url === d.ref.url && d.cand && c.candidate.url === d.cand.url;
+  var refTag = d.refSize ? d.refSize + (d.refVariant && !/regular/i.test(d.refVariant) ? " " + d.refVariant : "") : null;
+  h += '<div class="bcard' + (cat ? "" : " dim") + '"><span class="tag' + (refDone ? " done" : "") + '"><b>' + (refDone ? "✓" : "2") + '</b>One that fits you really well</span>';
+  if (!cat) h += '<p class="aside">Your best-fitting piece of the same kind is the yardstick. <mark>Any brand works.</mark></p>';
+  else if (d.ref) {
+    h += hangTag(d.ref, cat, fx.tagB, refTag);
+    if (d.ref.category && d.ref.category !== cat) h += '<p class="hint warn">This looks like a ' + esc(CATS[d.ref.category].one) + '. The comparison works best with ' + esc(CATS[cat].name) + '.</p>';
+    var sys = refSystem(d);
+    if (settled) h += '<div class="row" style="gap:18px"><button class="linkish" type="button" data-act="show-sizes">Change my size</button><button class="linkish" type="button" data-act="clear-ref">Use a different piece</button></div>';
+    else {
+      var rz = refSizing(d);
+      h += '<div class="stack"><p class="aside">What size is yours?</p>';
+      if (rz.variants) h += '<div class="row"><span class="eyebrow" style="margin-right:4px">Fit</span>' + rz.variants.map(function (v) { return '<button class="chip sm" type="button" data-act="refvar" data-v="' + esc(v) + '" aria-pressed="' + ((d.refVariant || rz.variants[0]) === v) + '">' + esc(v) + '</button>'; }).join("") + '</div>';
+      h += '<div class="row">' + refSizes(d).map(function (s) { return '<button class="chip size' + (U.just === "ref:" + s ? " just" : "") + '" type="button" data-act="refsize" data-s="' + s + '" aria-pressed="' + (d.refSize === s) + '">' + s + '</button>'; }).join("") + '</div>' +
+        '<p class="small muted">' + sizeLine(d.ref.brand, sys, refSizes(d), rz.variants) + (rz.note ? " " + esc(rz.note) : "") + '</p>';
+      h += '<div class="row" style="gap:18px">' +
+        '<button class="linkish" type="button" data-act="clear-ref">Use a different piece</button></div></div>';
+    }
+  } else {
+    var favs = S.favorites.filter(function (f) { return f.category === cat; });
+    if (favs.length) h += '<p class="aside">One tap to reuse a piece you\'ve told us about:</p><div class="stack">' + favs.map(function (f) {
+      return '<button class="btn" type="button" data-act="usefav" data-i="' + S.favorites.indexOf(f) + '" style="justify-content:space-between"><span>' + esc(f.brand) + ' ' + esc(shortTitle(f.title)) + '</span><span class="num">' + esc(f.size) + '</span></button>';
+    }).join("") + '</div>';
+    h += '<form class="stack" data-form="ref" novalidate><div class="seam"><input id="ref-link" type="url" inputmode="url" autocomplete="off" placeholder="Link to your best-fitting ' + esc(CATS[cat].one.split(" ").pop()) + '" aria-label="Link to a piece that fits you well" value="' + esc(d.refRaw || "") + '"><button class="btn primary" type="submit">Add</button></div>' +
+      (U.err.ref ? '<p class="hint warn">' + esc(U.err.ref) + '</p>' : "") + '</form>' +
+      '<p class="aside">Think of the one you reach for first. <b><button class="linkish" type="button" data-act="refsample" style="font-size:inherit">Use the sample ' + REF_NAME[cat] + '</button></b></p>';
+  }
+  h += '</div>';
+
+  var ready = cat && d.ref && d.refSize;
+  var stale = c && !settled && (c.reference.size !== d.refSize || !d.ref || c.reference.url !== d.ref.url || !d.cand || c.candidate.url !== d.cand.url);
+  if (U.measuring) h += measureBox(c, false);
+  else if (!c || stale) h += '<div class="stack"><button class="btn primary" type="button" data-act="measure"' + (ready ? "" : " disabled") + '>' + (stale ? "Update the fit notes" : "Lay them side by side") + '</button>' +
+    '<p class="aside" style="text-align:center">' + (ready ? "" : !cat ? "Start with the link above." : !d.ref ? "Now the piece that fits you." : "Tap your size in it.") + '</p></div>';
+  if (c && !U.measuring && !stale) h += measureBox(c, true) + resultsBlock(c);
+  return h + tail + '</section>';
+};
+
+function sizeLine(brand, sys, list, variants) {
+  var unit = sys === "num" ? "waist " : "";
+  return 'Read from the ' + esc(brand) + ' page: ' + esc(unit) + esc(list[0]) + ' to ' + esc(list[list.length - 1]) +
+    (variants && variants.length > 1 ? ', in ' + esc(variants.slice(0, -1).join(", ") + " and " + variants[variants.length - 1]) : "") + '.';
+}
+function measureBox(c, done) {
+  var cand = c.candidate, ref = c.reference, zones = CATS[c.category].zones.length;
+  var csys = cand.system || "letter", cl = cand.sizes || [];
+  var unit = csys === "num" ? "waist " : "";
+  var refTag = ref.size + (ref.variant && !/regular/i.test(ref.variant) ? " " + ref.variant : "");
+  var target = c.insights.bySize[c.insights.sizes[0]].zones[0].favorite_in;
+  var ticks = [
+    (done ? "Read" : "Reading") + " the " + cand.brand + " page: sizes " + unit + cl[0] + " to " + cl[cl.length - 1] + (cand.variant ? ", " + cand.variant + " cut" : "") + ", plus the fabric",
+    (done ? "Measured" : "Measuring") + " your " + ref.brand + " in size " + refTag,
+    (done ? "Compared " : "Comparing ") + zones + " fit spots across 3 sizes"
+  ];
+  if (profileFor(c.category).reports) ticks.push(done ? "Applied what you told us before" : "Applying what you told us before");
+  return '<div class="measure-box' + (done ? " done" : "") + '" id="measure"><div class="counter"><span class="big" id="inches">' + (done ? target.toFixed(1) : "0.0") + '</span><span class="eyebrow">inches measured</span></div>' +
+    tape(12, done ? 100 : 0, done ? "" : "measuring") +
+    '<ul class="ticks" id="ticks">' + ticks.map(function (t) { return '<li' + (done ? ' class="on"' : "") + '>' + esc(t) + '</li>'; }).join("") + '</ul>' +
+    '<p class="foot">Demo: measurements are simulated from the link. No store page is actually fetched.</p></div>';
+}
+
+function zoneInfo(c, sel, zone) {
+  var cur = c.insights.bySize[sel];
+  if (!zone) {
+    return '<div class="zinfo" id="zinfo"><div class="zhead"><h3>Size ' + esc(sel) + '</h3><span class="v ' + cur.read.tone + '">' + esc(cur.read.label) + '</span></div><p>' + esc(cur.read.why) + '</p>' +
+      '<p class="aside" style="font-size:1.02rem">Hover or tap a glowing spot on the garment to read how it fits there.</p></div>';
+  }
+  var z = cur.zones.filter(function (x) { return x.zone === zone; })[0];
+  return '<div class="zinfo swap" id="zinfo"><div class="zhead"><h3>' + z.label + '</h3><span class="v ' + lvClass(z.level) + '">' + esc(z.verdict) + '</span></div><p>' + esc(z.text) + '</p>' + '<div class="row">' + tailorHtml(c, z.zone, z.level) + '</div>' + confMeter(z.confidence) +
+    (z.personal ? '<p class="personal-note" >' + z.personal + '</p>' : "") +
+    (c.category === "pants" && /rise|waist|thigh/.test(zone) ? '<p class="small muted">' + esc(cur.motion[1][0] + ": " + cur.motion[1][1]) + '</p>' : "") + '</div>';
+}
+function resultsBlock(c) {
+  var ins = c.insights, C = CATS[c.category], fx = U.fx;
+  var sel = U.size && ins.bySize[U.size] ? U.size : (ins.sizes.indexOf(c.reference.size) >= 0 ? c.reference.size : ins.sizes[1]);
+  U.size = sel;
+  var cur = ins.bySize[sel], reads = ins.sizes.map(function (s) { return ins.bySize[s].read; });
+  var h = '<div class="results' + (fx.results ? " fx-results" : "") + '" id="results">';
+  if (reads.every(function (r) { return r.tone === "bad"; })) h += '<div class="banner bad"><b>Dead straight: we don\'t think this fits you in any of these sizes.</b><p class="small">' + esc(reads[1].why) + ' Your favorite is a better guide than the size label here.</p></div>';
+  else h += '<div class="banner"><p class="aside">We won\'t pick a size for you. See what each one trades, then <mark>choose what matters to you.</mark></p></div>';
+
+  var pins = cur.zones.map(function (z) { return { zone: z.zone, cls: lvClass(z.level) + (U.touched ? "" : " idle"), name: z.label + ": " + z.verdict }; });
+  h += '<div class="bcard"><span class="tag"><b>3</b>Try it on</span><div class="tabs" role="tablist">' + ins.sizes.map(function (s) {
+    var r = ins.bySize[s].read;
+    return '<button class="tab" role="tab" type="button" data-act="size" data-s="' + esc(s) + '" aria-selected="' + (s === sel) + '"><b>' + esc(s) + '</b><small>' + (s === c.reference.size ? "Your usual" : esc(SHORT_READ[r.tone])) + '</small></button>';
+  }).join("") + '</div>' +
+    '<div class="stage">' + sketch(c.category, pins, c.candidate.traits, { animate: fx.pins, active: U.zone }) + zoneInfo(c, sel, U.zone) + '</div>' +
+    '<div class="zdots">' + cur.zones.map(function (z, i) { return '<button type="button" class="zdot ' + lvClass(z.level) + '" data-zone="' + z.zone + '" aria-pressed="' + (U.zone === z.zone) + '"><i></i><span>' + (i + 1) + ' ' + z.label + '</span></button>'; }).join("") + '</div></div>';
+
+  h += '<div class="bcard"><span class="tag"><b>?</b>Why we think so</span><ul class="reasons">' +
+    reasonsFor(c, sel).map(function (r) { return '<li' + (r.you ? ' class="you"' : "") + '><span class="ri">' + icon(r.ic) + '</span><p>' + r.t + '</p></li>'; }).join("") + '</ul></div>';
+
+  h += '<button class="more-toggle" type="button" data-act="more" aria-expanded="' + U.more + '"><span>More comprehensive analysis</span><span class="chev">▾</span></button>';
+  if (U.more) {
+    h += '<div class="more' + (fx.more ? " fx-open" : "") + '">';
+    h += '<div class="bcard"><span class="tag"><b>≡</b>Every size at a glance</span><div class="glance-wrap"><table class="glance"><thead><tr><th></th>' +
+      ins.sizes.map(function (s) { return '<th>' + esc(s) + '</th>'; }).join("") + '</tr></thead><tbody>' +
+      C.zones.map(function (zz, i) {
+        return '<tr><th scope="row">' + zz[1] + '</th>' + ins.sizes.map(function (s) { var z = ins.bySize[s].zones[i]; return '<td' + (s === sel ? ' class="sel"' : "") + '><span class="v ' + lvClass(z.level) + '">' + esc(shortWord(z.zone, z.level)) + '</span></td>'; }).join("") + '</tr>';
+      }).join("") +
+      '<tr><th scope="row">Overall</th>' + ins.sizes.map(function (s) { var r = ins.bySize[s].read; return '<td' + (s === sel ? ' class="sel"' : "") + '><span class="v ' + r.tone + '">' + esc(SHORT_READ[r.tone]) + '</span></td>'; }).join("") + '</tr>' +
+      '</tbody></table></div></div>';
+    h += '<div class="bcard"><span class="tag"><b>' + esc(sel) + '</b>Every spot, in size ' + esc(sel) + '</span><div class="zones">' +
+      cur.zones.map(function (z, i) {
+        return '<div class="zone"><span class="zn"><span class="pinno ' + lvClass(z.level) + '"><i>' + (i + 1) + '</i></span>' + z.label + ' <span class="v ' + lvClass(z.level) + '">' + esc(z.verdict) + '</span></span>' +
+          confMeter(z.confidence) + '<p class="zt">' + esc(z.text) + '</p>' + (tailorTag(c, z.zone, z.level) ? '<span class="zt">' + tailorHtml(c, z.zone, z.level) + '</span>' : "") + (z.personal ? '<span class="personal-note">' + z.personal + '</span>' : "") + '</div>';
+      }).join("") + '</div>' +
+      '<dl class="motion">' + cur.motion.map(function (m) { return '<dt>' + m[0] + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join("") + '</dl>' +
+      '<details><summary>Where these numbers come from</summary><table class="meas"><thead><tr><th>Garment, in</th><th>' + esc(sel) + '</th><th>Your fav</th><th>Diff</th></tr></thead><tbody>' +
+      cur.zones.map(function (z) { var df = z.this_size_in - z.favorite_in; return '<tr><td>' + MEAS_NAME[z.zone] + '</td><td>' + z.this_size_in.toFixed(1) + '</td><td>' + z.favorite_in.toFixed(1) + '</td><td>' + (df >= 0 ? "+" : "−") + Math.abs(df).toFixed(1) + '</td></tr>'; }).join("") +
+      '</tbody></table><p class="foot">Demo: garment measurements are simulated. The real app reads the store\'s size chart, the fabric and fit reviews.</p></details></div>';
+    h += '</div>';
+  }
+
+  if (c.survey) h += '<div class="nudge"><p class="small">You told us how this one went. <span class="aside">Thank you.</span></p><button class="chip sm" type="button" data-act="report" data-id="' + c.id + '">See your answers</button></div>';
+  else h += '<div class="bcard"><span class="tag"><b>✂</b>What happens next</span><p class="aside">Bought it, passed on it, or still deciding? Tap what happened, and <mark>your next notes get sharper.</mark></p>' +
+    '<button class="btn primary" type="button" data-act="report" data-id="' + c.id + '">Tell us what happened</button>' +
+    (c.remindLater ? "" : '<button class="btn ghost" type="button" data-act="later" data-id="' + c.id + '">I\'ll come back later</button>') + '</div>';
+  return h + '</div>';
+}
+
+/* ---------- Fit report page ---------- */
+var EXTRA = ["sitting", "outcome", "tailoring", "returnReason", "accuracy", "whyNot", "size"];
+function rpAnswered(v) { return Array.isArray(v) ? true : !!v; }
+function rpDone(id, a) { if (id === "size" && a.size === "A different size") return !!a.sizeOther; return rpAnswered(a[id]); }
+V.report = function () {
+  var c = findCheck(U.rp.id); if (!c) { U.view = "board"; return V.board(); }
+  if (c.survey && !U.rp.editing) return learnedView(c);
+  var a = U.rp.a, steps = svSteps(c, a), C = CATS[c.category];
+  var zoneIds = steps.filter(function (s) { return s.indexOf("fit:") === 0; }).map(function (s) { return s.slice(4); });
+  var req = steps;
+  var done = req.filter(function (id) { return rpDone(id, a); }).length;
+  var h = '<section class="view' + enterCls() + '">' + hangTag(c.candidate, c.category, false, a.size || null) +
+    '<h1><span class="ph">What <em>happened</em></span> <span class="ph">with it?</span></h1>' +
+    '<p class="aside">Just tap what you felt. No typing, and <mark>your next notes get sharper.</mark></p>' +
+    '<div class="stack">' + tape(12, Math.round(done / req.length * 100)) + '<span class="eyebrow"><span class="num">' + done + '</span> of ' + req.length + ' answered</span></div>';
+
+  // answered strip (non-zone questions), tap to change
+  var strip = steps.filter(function (id) { return id.indexOf("fit:") !== 0 && rpDone(id, a) && U.rp.edit !== id; });
+  if (strip.length) h += '<div class="answered-strip">' + strip.map(function (id) {
+    var v = Array.isArray(a[id]) ? (a[id].length ? a[id].filter(function (x) { return x !== "Something else"; }).concat(a.tailoringOther ? [a.tailoringOther] : []).join(", ") || "Something else" : "Nothing") : id === "size" && a.size === "A different size" ? a.sizeOther : a[id];
+    return '<button class="chip sm lite" type="button" data-act="rp-edit" data-q="' + id + '">' + esc(stripLabel(id)) + ': <b>' + esc(v) + '</b> <span class="edit-pen">✎</span></button>';
+  }).join("") + '</div>';
+
+  // the active question
+  var nextId = U.rp.edit || steps.filter(function (id) { return !rpDone(id, a) && id.indexOf("fit:") !== 0; })[0];
+  var zonesLeft = zoneIds.filter(function (z) { return !a["fit:" + z]; });
+  var orderOk = function (id) { return steps.indexOf(id) < steps.indexOf("fit:" + zoneIds[0]) || !zoneIds.length; };
+  var askNonZone = nextId && (U.rp.edit || orderOk(nextId) || !zonesLeft.length);
+  var qBefore = askNonZone && orderOk(nextId);
+  if (qBefore) h += qCard(c, nextId);
+
+  // the garment stage
+  if (zoneIds.length && a.size && !qBefore) {
+    var curZ = U.rp.zone && zoneIds.indexOf(U.rp.zone) >= 0 && (!a["fit:" + U.rp.zone] || U.rp.zoneEdit) ? U.rp.zone : zonesLeft[0];
+    U.rp.zone = curZ || null;
+    var pins = zoneIds.map(function (z) {
+      var ans = a["fit:" + z], felt = ans ? FIT_Q[z].opts.filter(function (o) { return o.label === ans; })[0].felt : null;
+      return { zone: z, cls: z === curZ ? "cur" : ans != null ? lvOf(felt) : "todo", label: ans != null && z !== curZ ? "✓" : String(zoneIds.indexOf(z) + 1), name: C.zones.filter(function (x) { return x[0] === z; })[0][1] };
+    });
+    h += '<div class="bcard"><span class="tag' + (zonesLeft.length ? "" : " done") + '"><b>' + (zonesLeft.length ? "✱" : "✓") + '</b>' + (zonesLeft.length ? "Spot " + (zoneIds.length - zonesLeft.length + 1) + " of " + zoneIds.length + " · it lights up" : "Every spot answered") + '</span><div class="stage">' +
+      sketch(c.category, pins, c.candidate.traits, { active: curZ, animate: U.fx.pins }) +
+      (curZ ? zoneQ(c, curZ) : '<div class="zinfo done"><h3>All spots done.</h3><p class="small muted">Tap any spot on the garment to change an answer.</p></div>') + '</div></div>';
+  }
+  if (askNonZone && !qBefore) h += qCard(c, nextId);
+  if (!nextId && !zonesLeft.length) h += '<div class="bcard"><span class="tag"><b>+</b>Anything else? Optional</span><label class="aside" for="rp-notes">Anything else uncomfortable or off about it? Say it however you like.</label>' +
+    '<textarea id="rp-notes" class="notes" rows="3" placeholder="e.g. the pockets sit too low, the waistband rolls when I sit, the fabric is itchy">' + esc(a.otherNotes || "") + '</textarea></div>' +
+    '<button class="btn primary" type="button" data-act="rp-save">Save my fit report</button>';
+  return h + '</section>';
+};
+function stripLabel(id) { return { bought: "Bought", size: "Size", whyNot: "Why not", sitting: "Sitting", outcome: "Outcome", tailoring: "Altered", returnReason: "Reason", accuracy: "Our notes" }[id] || id; }
+function qCard(c, id) {
+  var q = svQuestion(c, id), cur = q.multi ? ((U.rp.tmp && U.rp.tmp[id]) || U.rp.a[id] || []) : U.rp.a[id];
+  var isSize = id === "size";
+  var h = '<div class="bcard qcard"><span class="tag"><b>' + (isSize ? "#" : "?") + '</b>' + esc(stripLabel(id)) + '</span><h2>' + q.q + '</h2>' + (q.sub ? '<p class="small muted">' + esc(q.sub) + '</p>' : "");
+  if (isSize) {
+    h += '<div class="row">' + q.opts.map(function (o) { return '<button class="chip size' + (U.just === id + ":" + o.label ? " just" : "") + '" type="button" data-act="rp-pick" data-q="size" data-v="' + esc(o.label) + '" aria-pressed="' + (cur === o.label) + '">' + esc(o.label) + '</button>'; }).join("") + '</div>';
+    if (cur === "A different size") h += '<form class="stack" data-form="size-other" novalidate><label class="aside" for="size-other">Which size did you get? Write it the way the label does.</label><div class="seam"><input id="size-other" autocomplete="off" placeholder="e.g. 27 Petite, EU 38, XXS" value="' + esc(U.rp.a.sizeOther || "") + '"><button class="btn primary" type="submit">Use this size</button></div></form>';
+  }
+  else h += '<div class="tiles wide">' + q.opts.map(function (o) {
+    var on = q.multi ? (cur || []).indexOf(o.label) >= 0 : cur === o.label;
+    return '<button class="tile' + (U.just === id + ":" + o.label ? " just" : "") + '" type="button" data-act="' + (q.multi ? "rp-toggle" : "rp-pick") + '" data-q="' + id + '" data-v="' + esc(o.label) + '" aria-pressed="' + on + '"><span class="pic ic">' + icon(OPT_ICON[o.label] || o.icon) + '</span>' + esc(o.label) + '</button>';
+  }).join("") + '</div>';
+  if (q.multi && (cur || []).indexOf("Something else") >= 0) h += '<label class="stack" for="tailor-other"><span class="aside">What else did you have altered?</span><div class="seam"><input id="tailor-other" autocomplete="off" placeholder="e.g. moved the button, shortened the straps" value="' + esc(U.rp.a.tailoringOther || "") + '"></div></label>';
+  if (q.multi) h += '<button class="btn" type="button" data-act="rp-done" data-q="' + id + '">' + ((cur || []).length ? "Done" : "Nothing altered, skip") + '</button>';
+  return h + '</div>';
+}
+function zoneQ(c, z) {
+  var q = FIT_Q[z], cur = U.rp.a["fit:" + z], lab = CATS[c.category].zones.filter(function (x) { return x[0] === z; })[0][1];
+  return '<div class="qcard"><span class="eyebrow">' + esc(lab) + '</span><h2>' + esc(q.q) + '</h2><div class="tiles">' + q.opts.map(function (o) {
+    return '<button class="tile' + (U.just === "fit:" + z + ":" + o.label ? " just" : "") + '" type="button" data-act="rp-pick" data-q="fit:' + z + '" data-v="' + esc(o.label) + '" aria-pressed="' + (cur === o.label) + '">' + pict(z, o.felt) + esc(o.label) + '</button>';
+  }).join("") + '</div></div>';
+}
+function learnedView(c) {
+  var sv = c.survey, h = '<section class="view' + enterCls() + '">' + hangTag(c.candidate, c.category, false, sv.size || null) + '<div class="carelabel' + (U.fx.sew ? " fx-sew" : "") + '" id="label"><i class="th t1"></i><i class="th t2"></i><i class="th t3"></i><i class="th t4"></i>';
+  if (sv.bought === "no") {
+    h += '<span class="eyebrow">Sewn into your profile</span><h2>Skipped it. <em>Good call</em> if it wasn\'t right.</h2><p class="small muted">We kept your ' + esc(c.reference.brand) + ' as a piece that fits you, so next time it\'s one tap.</p>';
+  } else {
+    var keys = Object.keys(sv.fit), matched = keys.filter(function (z) { return sv.fit[z].matched; }).length;
+    h += '<span class="eyebrow">Fit report sewn into your profile</span><h2>Our notes matched <span class="hl">' + matched + ' of ' + keys.length + '</span> spots in size ' + esc(sv.size) + '.</h2>' +
+      '<p class="small muted">' + (matched === keys.length ? "Your next notes get a confidence boost." : "We'll correct for the misses next time, so your next notes get sharper.") + '</p>';
+    var C = CATS[c.category];
+    var pins = C.zones.map(function (zz) { var f = sv.fit[zz[0]]; return { zone: zz[0], cls: f ? lvOf(f.felt) : "todo", label: f && f.matched ? "✓" : "!", name: zz[1] }; });
+    h += '<div class="stage">' + sketch(c.category, pins, c.candidate.traits, { animate: U.fx.sew }) + '<div class="zinfo"><span class="eyebrow">What we learned</span><ul class="learn">' + learnedLines(c.category).lines.map(function (l) { return '<li><b>' + esc(l[0]) + '</b><span>' + l[1] + '</span></li>'; }).join("") + '</ul></div></div>';
+  }
+  if (sv.otherNotes || sv.tailoringOther) h += '<p class="aside">' + (sv.tailoringOther ? "Altered: " + esc(sv.tailoringOther) + ". " : "") + (sv.otherNotes ? "You noted: \u201c" + esc(sv.otherNotes) + "\u201d" : "") + '</p>';
+  h += '<div class="row"><button class="linkish" type="button" data-act="rp-reedit">Change my answers</button></div></div>' +
+    '<button class="btn primary" type="button" data-act="new">Check another item</button><button class="btn" type="button" data-act="profile">See your fit profile</button></section>';
+  return h;
+}
+
+function learnedLines(cat) {
+  var p = profileFor(cat), lines = [], C = CATS[cat];
+  C.zones.forEach(function (zz) {
+    var b = p.bias[zz[0]]; if (b == null) return;
+    var isLen = /length/.test(zz[0]), amt = inch(b * unit(zz[0]) * 0.8);
+    if (Math.abs(b) < 0.5) lines.push([zz[1], "Matched how it felt. We're more confident here now."]);
+    else if (b > 0) lines.push([zz[1], (isLen ? "Landed longer on you" : "Felt roomier on you") + " than the measurements said. We now expect about " + amt + (isLen ? " in of extra length." : " in more room.")]);
+    else lines.push([zz[1], (isLen ? "Landed shorter on you" : "Felt snugger on you") + " than the measurements said. We now expect about " + amt + (isLen ? " in less length." : " in less room.")]);
+  });
+  if (p.hems) lines.push(["Tailoring", "You've had " + C.name + " hemmed, so a long hem counts as an easy fix, not a dealbreaker."]);
+  if (p.returnsForFit) lines.push(["Returns", p.returnsForFit + " returned for fit. We'll be blunter about borderline sizes."]);
+  return { p: p, lines: lines };
+}
+
+/* ---------- Profile + saved data page ---------- */
+V.profile = function () {
+  var pending = S.checks.filter(function (c) { return !c.survey; }), done = S.checks.filter(function (c) { return c.survey; });
+  var cats = Object.keys(CATS).filter(function (c) { return profileFor(c).reports > 0; });
+  var h = '<section class="view' + enterCls() + '"><h1><span class="ph">Your fit</span> <span class="ph"><em>profile</em></span></h1>' +
+    '<p class="aside">Built only from what you\'ve told us. No brand ever sees it, and <mark>every report makes it sharper.</mark></p>';
+  h += '<div class="bcard"><span class="tag"><b>★</b>What we\'ve learned</span>';
+  if (!cats.length) h += '<p class="aside">Nothing yet. Check an item, then tell us what happened with it.</p>';
+  cats.forEach(function (c) {
+    var L = learnedLines(c), prefs = prefsFor(c);
+    h += '<h3>' + CATS[c].name.charAt(0).toUpperCase() + CATS[c].name.slice(1) + ' <span class="muted small">· ' + L.p.reports + ' fit report' + (L.p.reports > 1 ? "s" : "") + '</span></h3><ul class="learn">' +
+      L.lines.map(function (l) { return '<li><b>' + esc(l[0]) + '</b><span>' + l[1] + '</span></li>'; }).join("") + '</ul>' +
+      (prefs.length ? '<ul class="reasons">' + prefs.map(function (t) { return '<li class="you"><span class="ri">' + IC.heart + '</span><p>' + t + '</p></li>'; }).join("") + '</ul>' : "");
+  });
+  h += '</div>';
+  if (S.favorites.length) h += '<div class="bcard"><span class="tag"><b>' + S.favorites.length + '</b>Pieces that fit you well</span><div class="stack">' + S.favorites.map(function (f) { return hangTag(f, f.category, false, f.size); }).join("") + '</div></div>';
+  if (pending.length) {
+    h += '<div class="bcard"><span class="tag"><b>' + pending.length + '</b>Waiting on your fit report</span>';
+    pending.forEach(function (c) {
+      h += '<div class="histrow"><span class="t">' + esc(c.candidate.brand) + ' ' + esc(shortTitle(c.candidate.title)) + '</span><button class="chip sm" type="button" data-act="report" data-id="' + c.id + '">Update</button>' +
+        '<span class="s">Checked ' + new Date(c.createdAt).toLocaleDateString() + ' · <button class="linkish" type="button" data-act="open" data-id="' + c.id + '" style="font-size:inherit">See the fit notes</button></span></div>';
+    });
+    h += '</div>';
+  }
+  if (done.length) {
+    h += '<div class="bcard"><span class="tag"><b>' + done.length + '</b>Fit history</span>';
+    done.forEach(function (c) {
+      var sv = c.survey;
+      h += '<div class="histrow"><span class="t">' + esc(c.candidate.brand) + ' ' + esc(shortTitle(c.candidate.title)) + '</span><button class="chip sm lite" type="button" data-act="open" data-id="' + c.id + '">Notes</button>' +
+        '<span class="s">' + (sv.bought === "yes" ? "Size " + esc(sv.size) + " · " + esc(sv.outcome) + (sv.tailoring && sv.tailoring.length ? " (" + esc(sv.tailoring.join(", ").toLowerCase()) + ")" : "") : "Didn't buy" + (sv.whyNot ? " · " + esc(sv.whyNot.toLowerCase()) : "")) + '</span></div>';
+    });
+    h += '</div>';
+  }
+  var exportObj = JSON.parse(JSON.stringify(S));
+  exportObj.fit_profile = {};
+  Object.keys(CATS).forEach(function (c) { var p = profileFor(c); if (p.reports) exportObj.fit_profile[c] = { reports: p.reports, zone_bias_levels: p.bias, hems: p.hems, returns_for_fit: p.returnsForFit }; });
+  (exportObj.checks || []).forEach(function (c) { if (c.insights) delete c.insights.profile; });
+  U.exportTxt = JSON.stringify(exportObj, null, 2);
+  h += '<div class="bcard"><span class="tag"><b>{}</b>Your saved data</span><p class="small">The structured record behind your notes: each item you checked, what we predicted, and how it actually fit. <span class="aside">In this demo it lives only in this browser.</span></p>' +
+    '<div class="row"><button class="chip sm" type="button" data-act="copy">Copy JSON</button><span class="small muted" id="copied"></span></div>' +
+    '<details><summary>Show the data</summary><pre class="json" id="json">' + esc(U.exportTxt) + '</pre></details>' +
+    '<div class="row" style="justify-content:space-between"><button class="btn ghost" type="button" data-act="reset">' + (U.confirmReset ? "Tap again to erase everything" : "Erase all demo data") + '</button><button class="btn ghost" type="button" data-act="signout">Sign out</button></div></div>';
+  return h + '</section>';
+};
+
+/* ---------- Render + navigation ---------- */
+function render() {
+  var who = document.getElementById("who");
+  who.innerHTML = S.user ? '<button type="button" class="eyebrow" data-act="profile" style="background:none;border:0;cursor:pointer;padding:4px 0">' + esc(S.user.name) + '\'s profile</button>' : "";
+  if (!S.user && U.view !== "signin") U.view = "signin";
+  var bb = document.getElementById("backbar"), showBack = canGoBack();
+  bb.hidden = !showBack;
+  bb.innerHTML = showBack ? '<button class="backbtn" type="button" data-act="back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Back</button>' : "";
+  app.innerHTML = V[U.view]();
+  U.lastView = U.view; U.fx = {}; U.just = null;
+  var f = app.querySelector("#fname"); if (f) f.focus();
+}
+function snap() { return { view: U.view, checkId: U.checkId, size: U.size, zone: U.zone, more: U.more, draft: JSON.parse(JSON.stringify(U.draft || {})), rp: U.rp ? JSON.parse(JSON.stringify(U.rp)) : null }; }
+function pushState() { U.stack.push(snap()); if (U.stack.length > 40) U.stack.shift(); }
+function go(view) { if (U.view !== view) pushState(); U.view = view; U.err = {}; render(); window.scrollTo(0, 0); }
+function canGoBack() { return (U.view === "signin" && !!U.provider) || U.stack.length > 0; }
+function stopMeasure() { measureTimer.forEach(clearTimeout); measureTimer = []; if (U.raf) cancelAnimationFrame(U.raf); U.measuring = false; }
+function goBack() {
+  stopMeasure(); U.confirmReset = false; U.err = {};
+  if (U.view === "signin" && U.provider) { U.provider = null; render(); return; }
+  var prev = U.stack.pop(); if (!prev) return;
+  if (!S.user) { U.stack = []; U.view = "signin"; render(); return; }
+  if (prev.checkId && !findCheck(prev.checkId)) prev.checkId = null;
+  if (prev.view === "report" && (!prev.rp || !findCheck(prev.rp.id))) prev.view = "board";
+  U.view = prev.view; U.checkId = prev.checkId; U.size = prev.size; U.zone = prev.zone; U.more = prev.more; U.draft = prev.draft; U.rp = prev.rp;
+  render(); window.scrollTo(0, 0);
+}
+function scrollToEl(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
+
+var measureTimer = [];
+function runMeasure() {
+  var lis = app.querySelectorAll("#ticks li"), el = document.getElementById("inches");
+  var c = findCheck(U.checkId), target = c ? c.insights.bySize[c.insights.sizes[0]].zones[0].favorite_in : 30;
+  var total = 300 + lis.length * 480 + 400, t0 = performance.now();
+  function step(t) { var k = Math.min(1, (t - t0) / 2100); k = 1 - Math.pow(1 - k, 3); if (el) el.textContent = (target * k).toFixed(1); if (k < 1) U.raf = requestAnimationFrame(step); }
+  U.raf = requestAnimationFrame(step);
+  lis.forEach(function (li, i) { measureTimer.push(setTimeout(function () { li.classList.add("on"); }, 250 + i * 480)); });
+  measureTimer.push(setTimeout(function () { U.measuring = false; U.fx = { results: true, pins: true }; render(); setTimeout(function () { scrollToEl("results"); }, 30); }, Math.max(total, 2300)));
+}
+
+function startCheck() {
+  var d = U.draft;
+  var check = {
+    id: uid(), createdAt: now(), category: d.cand.category,
+    candidate: { url: d.cand.url, brand: d.cand.brand, knownBrand: d.cand.knownBrand, title: d.cand.title, traits: d.cand.traits, labels: labelsOf(d.cand, d.cand.category) },
+    reference: { url: d.ref.url, brand: d.ref.brand, knownBrand: d.ref.knownBrand, title: d.ref.title, traits: withVariant(d.ref.traits, d.refVariant), labels: labelsOf(d.ref, d.cand.category), size: d.refSize, system: refSystem(d), variant: d.refVariant || (refSizing(d).variants ? refSizing(d).variants[0] : null) },
+    insights: null, survey: null
+  };
+  var cz = sizingFor(check.candidate, check.category), rv = check.reference.variant;
+  check.candidate.system = cz.sys; check.candidate.sizes = cz.sizes; check.candidate.sizingNote = cz.note;
+  // Compare in the candidate's matching cut: Short ~ Petite, Long ~ Tall.
+  var grp = function (v) { return /petite|short|25/i.test(v) ? "short" : /tall|long|31/i.test(v) ? "long" : /curve/i.test(v) ? "curve" : "reg"; };
+  var match = rv && cz.variants ? (cz.variants.indexOf(rv) >= 0 ? rv : cz.variants.filter(function (v) { return grp(v) === grp(rv); })[0]) : null;
+  if (match && grp(match) !== "reg") { check.candidate.variant = match; check.candidate.traits = withVariant(check.candidate.traits, match); }
+  if (d.checkId) S.checks = S.checks.filter(function (c) { return c.id !== d.checkId || c.survey; });
+  check.insights = computeInsights(check);
+  S.checks.unshift(check);
+  d.checkId = check.id;
+  if (!S.favorites.some(function (f) { return f.url === check.reference.url && f.size === check.reference.size && (f.variant || null) === (check.reference.variant || null); })) {
+    S.favorites.push({ category: check.category, url: check.reference.url, brand: check.reference.brand, knownBrand: check.reference.knownBrand, title: check.reference.title, traits: d.ref.traits, size: check.reference.size, system: check.reference.system, variant: check.reference.variant, addedAt: now() });
+  }
+  save();
+  U.checkId = check.id; U.size = null; U.zone = null; U.touched = false; U.more = false;
+}
+
+function addCand(raw) {
+  var p = parseLink(raw); U.draft.candRaw = raw;
+  if (!p) { U.err.cand = String(raw).trim() ? "That doesn't look like a link. Copy it from the address bar or the share button." : "Paste a link first."; render(); return; }
+  U.err = {}; U.draft.cand = p; U.fx.tagA = true; render();
+  if (p.category) setTimeout(function () { var r = document.getElementById("ref-link"); if (r && !U.draft.ref) r.focus({ preventScroll: true }); }, 50);
+}
+function addRef(raw) {
+  var q = parseLink(raw); U.draft.refRaw = raw;
+  if (!q) { U.err.ref = String(raw).trim() ? "That doesn't look like a link. Copy it from the address bar or the share button." : "Paste a link first."; render(); return; }
+  U.err = {}; U.draft.ref = q; U.draft.refSize = null; U.draft.refSys = null; U.fx.tagB = true; render();
+}
+function newBoard() { U.showSizes = false; U.showSys = false; stopMeasure(); U.draft = {}; U.checkId = null; U.size = null; U.zone = null; U.more = false; U.rp = null; U.err = {}; U.view = "board"; render(); window.scrollTo(0, 0); }
+function openReport(id) {
+  var c = findCheck(id); if (!c) return;
+  pushState();
+  U.rp = { id: id, a: {}, zone: null, edit: null, editing: false };
+  U.view = "report"; U.fx.pins = true; render(); window.scrollTo(0, 0);
+}
+
+/* Hover or tap a spot on the garment (results) */
+function setZone(z) {
+  if (U.view !== "board" || !U.checkId) return;
+  var c = findCheck(U.checkId); if (!c) return;
+  if (U.zone === z && U.touched) return;
+  U.zone = z; U.touched = true;
+  var p = document.getElementById("zinfo"); if (p) p.outerHTML = zoneInfo(c, U.size, z);
+  app.querySelectorAll("#results .pin").forEach(function (el) { el.classList.remove("idle"); el.classList.toggle("on", el.getAttribute("data-zone") === z); });
+  app.querySelectorAll("#results .zarea").forEach(function (el) { el.classList.toggle("show", el.getAttribute("data-area") === z); });
+  app.querySelectorAll("#results .zdot").forEach(function (el) { el.setAttribute("aria-pressed", String(el.getAttribute("data-zone") === z)); });
+}
+app.addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); });
+app.addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); });
+app.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("g.pin")) { e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click", { bubbles: true })); } });
+
+/* ---------- Events ---------- */
+app.addEventListener("submit", function (e) {
+  e.preventDefault();
+  var form = e.target.getAttribute("data-form");
+  if (form === "cand") addCand(app.querySelector("#cand-link").value);
+  else if (form === "ref") addRef(app.querySelector("#ref-link").value);
+  else if (form === "size-other") {
+    var so = (app.querySelector("#size-other").value || "").trim();
+    if (!so) { app.querySelector("#size-other").focus(); return; }
+    U.rp.a.sizeOther = so; delete U.rp.a.sizeOtherDraft; if (U.rp.edit === "size") U.rp.edit = null; render();
+  }
+  else if (form === "name") {
+    var nm = (app.querySelector("#fname").value || "").trim() || "there";
+    S.user = { id: S.user && S.user.id || "demo_" + uid(), name: nm, provider: U.provider, signedInAt: now() };
+    save(); U.provider = null; U.stack = []; newBoard();
+  }
+});
+app.addEventListener("paste", function (e) {
+  var id = e.target && e.target.id;
+  if (id !== "cand-link" && id !== "ref-link") return;
+  setTimeout(function () { var v = e.target.value; if (parseLink(v)) (id === "cand-link" ? addCand : addRef)(v); }, 0);
+});
+app.addEventListener("input", function (e) {
+  if (U.rp && e.target.id === "size-other") U.rp.a.sizeOtherDraft = e.target.value;
+  if (U.rp && e.target.id === "tailor-other") U.rp.a.tailoringOther = e.target.value.trim();
+  if (U.rp && e.target.id === "rp-notes") U.rp.a.otherNotes = e.target.value.trim();
+  if (e.target.id === "cand-link") U.draft.candRaw = e.target.value;
+  if (e.target.id === "ref-link") U.draft.refRaw = e.target.value;
+});
+document.addEventListener("click", function (e) {
+  var zt = e.target.closest && e.target.closest("[data-zone]");
+  if (zt && !e.target.closest("[data-act]")) {
+    var z = zt.getAttribute("data-zone");
+    if (U.view === "board") { setZone(z); return; }
+    if (U.view === "report" && U.rp) { U.rp.zone = z; U.rp.zoneEdit = true; U.rp.edit = null; render(); return; }
+  }
+  var b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
+  var act = b.getAttribute("data-act"), d = U.draft;
+  if (act !== "reset") U.confirmReset = false;
+  switch (act) {
+    case "back": goBack(); break;
+    case "home": if (!S.user) break; if (U.view !== "board") go("board"); else window.scrollTo({ top: 0, behavior: "smooth" }); break;
+    case "profile": go("profile"); break;
+    case "provider": U.provider = b.getAttribute("data-p"); render(); break;
+    case "signout": S.user = null; save(); U.stack = []; U.view = "signin"; render(); break;
+    case "new": pushState(); newBoard(); break;
+    case "sample": addCand(SAMPLES[b.getAttribute("data-c")].cand); break;
+    case "setcat": d.cand.category = b.getAttribute("data-c"); vibrate(); render(); break;
+    case "clear-cand": pushState(); d.cand = null; d.candRaw = ""; d.ref = null; d.refRaw = ""; d.refSize = null; d.checkId = null; U.checkId = null; render(); break;
+    case "clear-ref": pushState(); d.ref = null; d.refRaw = ""; d.refSize = null; d.refSys = null; U.showSizes = false; render(); setTimeout(function () { var r = document.getElementById("ref-link"); if (r) r.focus({ preventScroll: true }); }, 30); break;
+    case "refsample": addRef(SAMPLES[d.cand.category].ref); break;
+    case "usefav":
+      var f = S.favorites[+b.getAttribute("data-i")];
+      d.refRaw = f.url; d.ref = { url: f.url, brand: f.brand, knownBrand: f.knownBrand, title: f.title, category: f.category, traits: f.traits };
+      d.refSize = f.size; d.refSys = f.system; d.refVariant = f.variant || null; U.fx.tagB = true; vibrate(); render(); break;
+    case "show-sizes": U.showSizes = true; render(); break;
+    case "refsize": U.showSizes = false; d.refSize = b.getAttribute("data-s"); U.just = "ref:" + d.refSize; vibrate(); render(); break;
+    case "showsys": U.showSys = true; render(); break;
+    case "refsys": d.refSys = b.getAttribute("data-sys"); d.refSize = null; render(); break;
+    case "refvar": d.refVariant = b.getAttribute("data-v"); U.showSizes = true; vibrate(); render(); break;
+    case "measure": pushState(); startCheck(); U.measuring = true; render(); scrollToEl("measure"); runMeasure(); break;
+    case "size": U.size = b.getAttribute("data-s"); U.fx.pins = true; vibrate(); render(); break;
+    case "more": U.more = !U.more; U.fx.more = U.more; render(); break;
+    case "open":
+      pushState();
+      var oc = findCheck(b.getAttribute("data-id"));
+      U.view = "board"; U.draft = draftFromCheck(oc); U.checkId = oc.id; U.size = null; U.zone = null; U.touched = false; U.more = false; U.rp = null;
+      U.fx = { results: true, pins: true }; render(); setTimeout(function () { scrollToEl("results"); }, 30); break;
+    case "report": openReport(b.getAttribute("data-id")); break;
+    case "later":
+      var lc = findCheck(b.getAttribute("data-id")); lc.remindLater = now(); save();
+      toast("Saved. It's waiting in your profile."); pushState(); newBoard(); break;
+    case "rp-pick": rpPick(b); break;
+    case "rp-toggle":
+      U.rp.tmp = U.rp.tmp || {};
+      var q = b.getAttribute("data-q"), v = b.getAttribute("data-v"), arr = U.rp.tmp[q] || U.rp.a[q] || [];
+      U.rp.tmp[q] = arr.indexOf(v) >= 0 ? arr.filter(function (x) { return x !== v; }) : arr.concat([v]); U.just = q + ":" + v; vibrate(); render(); break;
+    case "rp-done":
+      var mq = b.getAttribute("data-q"); U.rp.a[mq] = (U.rp.tmp && U.rp.tmp[mq]) || U.rp.a[mq] || []; if (U.rp.tmp) delete U.rp.tmp[mq];
+      U.rp.edit = null; render(); break;
+    case "rp-edit": U.rp.edit = b.getAttribute("data-q"); if (U.rp.edit === "tailoring") { /* keep current picks */ } render(); break;
+    case "rp-save":
+      var sc = findCheck(U.rp.id); finishSurvey(sc, U.rp.a); U.rp.editing = false; U.fx.sew = true; render(); window.scrollTo(0, 0); toast("✓ Fit report saved"); break;
+    case "rp-reedit":
+      var rc = findCheck(U.rp.id); U.rp = { id: rc.id, a: answersFrom(rc), zone: null, edit: null, editing: true }; render(); break;
+    case "copy":
+      var ok = function () { var el = document.getElementById("copied"); if (el) el.textContent = "Copied"; };
+      var fb = function () { var det = app.querySelector("details"); if (det) det.open = true; var r = document.createRange(); r.selectNodeContents(document.getElementById("json")); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); var el = document.getElementById("copied"); if (el) el.textContent = "Selected. Copy it from here."; };
+      try { navigator.clipboard.writeText(U.exportTxt).then(ok, fb); } catch (err) { fb(); }
+      break;
+    case "reset":
+      if (!U.confirmReset) { U.confirmReset = true; render(); break; }
+      U.confirmReset = false; S = fresh(); save(); U.stack = []; U.draft = {}; U.checkId = null; U.view = "signin"; render(); break;
+  }
+});
+function answersFrom(c) {
+  var sv = c.survey, a = {};
+  a.bought = sv.bought === "yes" ? "Yes" : "Decided not to";
+  if (sv.whyNot) a.whyNot = sv.whyNot;
+  if (sv.size) { a.size = sv.size; if (sv.sizeWrittenIn) { a.size = "A different size"; a.sizeOther = sv.size; } }
+  if (sv.tailoringOther) a.tailoringOther = sv.tailoringOther;
+  if (sv.otherNotes) a.otherNotes = sv.otherNotes;
+  Object.keys(sv.fit || {}).forEach(function (z) { a["fit:" + z] = sv.fit[z].answer; });
+  if (sv.sittingComfort) a.sitting = sv.sittingComfort;
+  if (sv.outcome) a.outcome = sv.outcome;
+  if (sv.outcome === "Kept it and got it tailored") a.tailoring = sv.tailoring || [];
+  if (sv.returnReason) a.returnReason = sv.returnReason;
+  if (sv.notesAccuracy) a.accuracy = sv.notesAccuracy;
+  return a;
+}
+function rpPick(b) {
+  var c = findCheck(U.rp.id), id = b.getAttribute("data-q"), v = b.getAttribute("data-v");
+  U.rp.a[id] = v;
+  if (id === "bought") Object.keys(U.rp.a).forEach(function (k) { if (k !== "bought") delete U.rp.a[k]; });
+  if (id === "outcome") { delete U.rp.a.tailoring; delete U.rp.a.returnReason; }
+  vibrate(); U.just = id + ":" + v;
+  if (id === "bought" && v === "Not yet") { finishSurvey(c, U.rp.a); toast("Okay, we'll ask again later"); goBack(); return; }
+  if (id === "size" && v !== "A different size") delete U.rp.a.sizeOther;
+  if (U.rp.edit === id && !(id === "size" && v === "A different size")) U.rp.edit = null;
+  if (id.indexOf("fit:") === 0) { U.rp.zoneEdit = false; U.rp.zone = null; U.fx.pins = false; }
+  render();
+}
+
+render();
+})();
+</script>
+</body>
+</html>
