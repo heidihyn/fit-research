@@ -1162,11 +1162,34 @@ V.signin = function () {
     '<h1><span class="ph">How will it <em>fit?</em></span></h1>' +
     '<div class="banner"><p class="aside">We show how garments will behave on you. No tape measure. No picking a size for you. You can <mark>choose what matters to you.</mark></p><p class="small"><b>Sign in so your next notes get sharper.</b></p></div>' +
     sheet +
-    '<div class="bcard"><span class="tag"><b>M</b>What you\'ll see, for example</span><div class="stage">' +
-    sketch("pants", demo, {}, { animate: true, active: "waist" }) +
-    '<div class="zinfo"><div class="zhead"><h3>Waist</h3><span class="v l1">Some gape</span></div><p>About 2½ in of gape at the back waist. A belt handles it.</p>' + confMeter(81) + '<p class="aside" style="font-size:1rem">Hover or tap any spot on the garment to read how it fits there.</p></div></div></div>' +
+    '<div class="bcard"><span class="tag"><b>M</b>What you\'ll see, for example</span><div class="stage" id="demo-stage">' +
+    sketch("pants", demo, {}, { animate: true, active: U.demoZone || "waist" }) + demoInfo(U.demoZone || "waist") + '</div>' +
+    '<div class="zdots" id="demo-dots">' + DEMO_ZONES.map(function (z, i) { return '<button type="button" class="zdot ' + z.cls + '" data-zone="' + z.zone + '" aria-pressed="' + ((U.demoZone || "waist") === z.zone) + '"><i></i><span>' + (i + 1) + ' ' + z.label + '</span></button>'; }).join("") + '</div></div>' +
     '</section>';
 };
+
+/* Sample fit notes for the sign-in page's example garment */
+var DEMO_ZONES = [
+  { zone: "waist", cls: "l1", label: "Waist", verdict: "Some gape", text: "About 2½ in of gape at the back waist. A belt handles it.", conf: 81, tone: "easy", tailor: "Easy fix: take in the waist" },
+  { zone: "hip", cls: "l1", label: "Hips", verdict: "Roomier", text: "About 1 in more room at the hips than your favorite. Comfortable when you sit.", conf: 78, tone: "easy", tailor: "Easy fix: take in the side seams" },
+  { zone: "rise", cls: "l0", label: "Crotch & rise", verdict: "Like yours", text: "The rise lands where your favorite's does. No pulling when you sit or bend.", conf: 84 },
+  { zone: "thigh", cls: "l0", label: "Thighs", verdict: "Like yours", text: "Thighs feel like your favorite, with room to squat and climb stairs.", conf: 80 },
+  { zone: "length", cls: "l2", label: "Length", verdict: "Longer", text: "About 3 in longer than your favorite. It will pool over your shoes.", conf: 88, tone: "easy", tailor: "Easy fix: hem" }
+];
+function demoInfo(zone) {
+  var z = DEMO_ZONES.filter(function (x) { return x.zone === zone; })[0] || DEMO_ZONES[0];
+  return '<div class="zinfo' + (U.demoTouched ? " swap" : "") + '" id="demo-zinfo"><div class="zhead"><h3>' + z.label + '</h3><span class="v ' + z.cls + '">' + esc(z.verdict) + '</span></div><p>' + esc(z.text) + '</p>' +
+    (z.tailor ? '<div class="row"><span class="ttag ' + z.tone + '">' + IC.scissors + esc(z.tailor) + '</span></div>' : "") + confMeter(z.conf) +
+    '<p class="aside" style="font-size:1rem">Hover or tap any spot on the garment to read how it fits there.</p></div>';
+}
+function setDemoZone(z) {
+  if (U.view !== "signin" || (U.demoZone === z && U.demoTouched)) return;
+  U.demoZone = z; U.demoTouched = true;
+  var p = document.getElementById("demo-zinfo"); if (p) p.outerHTML = demoInfo(z);
+  app.querySelectorAll("#demo-stage .pin").forEach(function (el) { el.classList.remove("idle"); el.classList.toggle("on", el.getAttribute("data-zone") === z); });
+  app.querySelectorAll("#demo-stage .zarea").forEach(function (el) { el.classList.toggle("show", el.getAttribute("data-area") === z); });
+  app.querySelectorAll("#demo-dots .zdot").forEach(function (el) { el.setAttribute("aria-pressed", String(el.getAttribute("data-zone") === z)); });
+}
 
 function draftFromCheck(c) {
   return {
@@ -1571,8 +1594,8 @@ function setZone(z) {
   app.querySelectorAll("#results .zarea").forEach(function (el) { el.classList.toggle("show", el.getAttribute("data-area") === z); });
   app.querySelectorAll("#results .zdot").forEach(function (el) { el.setAttribute("aria-pressed", String(el.getAttribute("data-zone") === z)); });
 }
-app.addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); });
-app.addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); });
+app.addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); t = e.target.closest && e.target.closest("#demo-stage [data-zone], #demo-dots [data-zone]"); if (t) setDemoZone(t.getAttribute("data-zone")); });
+app.addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest("#results [data-zone]"); if (t) setZone(t.getAttribute("data-zone")); t = e.target.closest && e.target.closest("#demo-stage [data-zone], #demo-dots [data-zone]"); if (t) setDemoZone(t.getAttribute("data-zone")); });
 app.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("g.pin")) { e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click", { bubbles: true })); } });
 
 /* ---------- Events ---------- */
@@ -1609,6 +1632,7 @@ document.addEventListener("click", function (e) {
   if (zt && !e.target.closest("[data-act]")) {
     var z = zt.getAttribute("data-zone");
     if (U.view === "board") { setZone(z); return; }
+    if (U.view === "signin") { setDemoZone(z); return; }
     if (U.view === "report" && U.rp) { U.rp.zone = z; U.rp.zoneEdit = true; U.rp.edit = null; render(); return; }
   }
   var b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
